@@ -56,7 +56,7 @@
     "storageAccountName": "[concat('sa', uniquestring(resourceGroup().id))]",
     "storageAccountType": "Standard_LRS",
     "vmStorageAccountContainerName": "vhds",
-    "vmName": "[substring(concat(resourceGroup().Name,'vmlinuxsimple'),0,14)]",
+    "vmName": "[substring(concat('simplelinuxvm',resourceGroup().Name),0,14)]",
     "virtualNetworkName": "[tolower(concat('vnet',uniquestring(resourceGroup().id)))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
