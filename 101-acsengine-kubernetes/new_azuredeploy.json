@@ -2467,6 +2467,14 @@
     "virtualNetworkName": {
       "type": "string",
       "value": "[variables('virtualNetworkName')]"
+    },
+    "provisionScriptParametersCommon": {
+      "type": "string",
+      "value": "[variables('provisionScriptParametersCommon')]"
+    },
+    "provisionScriptParametersMaster": {
+      "type": "string",
+      "value": "[variables('provisionScriptParametersMaster')]"
     }
   }
 }
