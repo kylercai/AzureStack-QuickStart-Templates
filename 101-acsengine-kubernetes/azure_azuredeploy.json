@@ -803,7 +803,7 @@
       "type": "int"
     },
     "nameSuffix": {
-      "defaultValue": "50000009",
+      "defaultValue": "11234567",
       "metadata": {
         "description": "A string hash of the master DNS name to uniquely identify the cluster."
       },
@@ -1992,7 +1992,15 @@
     },
     "virtualNetworkName": {
       "type": "string",
-      "value": "[variables('virtualNetworkName')]"
+      "value": "[variables('virtualNetworkName')]",
+    },
+    "provisionScriptParametersCommon": {
+      "type": "string",
+      "value": "[variables('provisionScriptParametersCommon')]"
+    },
+    "provisionScriptParametersMaster": {
+      "type": "string",
+      "value": "[variables('provisionScriptParametersMaster')]"
     }
   }
 }

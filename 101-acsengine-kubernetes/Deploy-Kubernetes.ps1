@@ -26,26 +26,30 @@ Get-Date
 Import-Module C:\CloudDeployment\AzureStack.Connect.psm1
 
 Add-AzureRmEnvironment -Name "AzureStackUser" -ArmEndpoint "https://management.local.azurestack.external"
-$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci02.onmicrosoft.com" -EnvironmentName AzureStackUser
+$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci10.onmicrosoft.com" -EnvironmentName AzureStackUser
 $TenantID
-#$TenantID = "6a8092d6-08d4-45af-894a-121400ef36a1" 
+#$TenantID = "cbc15641-5845-4de1-9820-5ed8b3cb125f" 
 $UserName='tenantadmin1@msazurestack.onmicrosoft.com'
 $Password='User@123'| ConvertTo-SecureString -Force -AsPlainText
 $Credential= New-Object PSCredential($UserName,$Password)
 Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential 
-Select-AzureRmSubscription -SubscriptionId ceee0713-cd8a-4f22-9015-ba678bb50206
+Select-AzureRmSubscription -SubscriptionId 70ea702f-fc13-4f9e-ab40-90b40b9c0c63
 
 $resourceGroupName = "radhikgu-k8s1d"
 $resourceGroupDeploymentName = "$($resourceGroupName)Deployment"
+$resourceGroupOutputName = "$($resourceGroupName)-out.txt"
 
 # Create a resource group:
 New-AzureRmResourceGroup -Name $resourceGroupName -Location "local"
 
 # Deploy template to resource group: Deploy using a local template and parameter file
-New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName -ResourceGroupName $resourceGroupName `
-                                    -TemplateFile "C:\Kubernetes\azuredeploy.json" `
-                                    -TemplateParameterFile "C:\Kubernetes\azuredeploy.parameters.json" -Verbose
+$key = New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName -ResourceGroupName $resourceGroupName `
+                                           -TemplateFile "C:\Kubernetes\new_azuredeploy.json" `
+                                           -TemplateParameterFile "C:\Kubernetes\new_azuredeploy.parameters.json" -Verbose
+Write-Output $key
+$key.OutputsString > $resourceGroupOutputName
 Get-Date
+
 # Deploy in multi-node Azure Stack #######################################################################################################
 
 Import-Module C:\CloudDeployment\AzureStack.Connect.psm1
