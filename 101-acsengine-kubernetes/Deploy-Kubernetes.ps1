@@ -26,14 +26,14 @@ Get-Date
 Import-Module C:\CloudDeployment\AzureStack.Connect.psm1
 
 Add-AzureRmEnvironment -Name "AzureStackUser" -ArmEndpoint "https://management.local.azurestack.external"
-$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci10.onmicrosoft.com" -EnvironmentName AzureStackUser
+$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci12.onmicrosoft.com" -EnvironmentName AzureStackUser
 $TenantID
-#$TenantID = "cbc15641-5845-4de1-9820-5ed8b3cb125f" 
+#$TenantID = "0ab67e9c-93f7-43a7-ab2d-e9ad3e0db8cd" 
 $UserName='tenantadmin1@msazurestack.onmicrosoft.com'
 $Password='User@123'| ConvertTo-SecureString -Force -AsPlainText
 $Credential= New-Object PSCredential($UserName,$Password)
 Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential 
-Select-AzureRmSubscription -SubscriptionId 70ea702f-fc13-4f9e-ab40-90b40b9c0c63
+Select-AzureRmSubscription -SubscriptionId d5b7173c-fbd6-4911-8c6b-3c1497796e98
 
 $resourceGroupName = "radhikgu-k8s1d"
 $resourceGroupDeploymentName = "$($resourceGroupName)Deployment"

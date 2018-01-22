@@ -1067,7 +1067,7 @@
       "type": "int"
     },
     "nameSuffix": {
-      "defaultValue": "34803250",
+      "defaultValue": "27482449",
       "metadata": {
         "description": "A string hash of the master DNS name to uniquely identify the cluster."
       },
@@ -2467,14 +2467,6 @@
     "virtualNetworkName": {
       "type": "string",
       "value": "[variables('virtualNetworkName')]"
-    },
-    "provisionScriptParametersCommon": {
-      "type": "string",
-      "value": "[variables('provisionScriptParametersCommon')]"
-    },
-    "provisionScriptParametersMaster": {
-      "type": "string",
-      "value": "[variables('provisionScriptParametersMaster')]"
     }
   }
 }
