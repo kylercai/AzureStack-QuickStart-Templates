@@ -32,7 +32,7 @@ $TenantID
 $UserName='tenantadmin1@msazurestack.onmicrosoft.com'
 $Password='User@123'| ConvertTo-SecureString -Force -AsPlainText
 $Credential= New-Object PSCredential($UserName,$Password)
-Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential 
+Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential
 Select-AzureRmSubscription -SubscriptionId d5b7173c-fbd6-4911-8c6b-3c1497796e98
 
 $resourceGroupName = "radhikgu-k8s1d"
