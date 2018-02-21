@@ -23,19 +23,19 @@ New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName `
 
 # Deploy in one-node Azure Stack #######################################################################################################
 Get-Date
-Import-Module C:\CloudDeployment\AzureStack.Connect.psm1
+Import-Module C:\Kubernetes\AzureStack.Connect.psm1
 
 Add-AzureRmEnvironment -Name "AzureStackUser" -ArmEndpoint "https://management.local.azurestack.external"
-$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci12.onmicrosoft.com" -EnvironmentName AzureStackUser
-$TenantID
-#$TenantID = "0ab67e9c-93f7-43a7-ab2d-e9ad3e0db8cd" 
+
+$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci08.onmicrosoft.com" -EnvironmentName AzureStackUser
+$TenantID 
 $UserName='tenantadmin1@msazurestack.onmicrosoft.com'
 $Password='User@123'| ConvertTo-SecureString -Force -AsPlainText
 $Credential= New-Object PSCredential($UserName,$Password)
 Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential
-Select-AzureRmSubscription -SubscriptionId d5b7173c-fbd6-4911-8c6b-3c1497796e98
+Select-AzureRmSubscription -SubscriptionId 8bca0c44-a77e-4fe4-9955-b126ff19aa41
 
-$resourceGroupName = "radhikgu-k8s1d"
+$resourceGroupName = "k8s-4788236"
 $resourceGroupDeploymentName = "$($resourceGroupName)Deployment"
 $resourceGroupOutputName = "$($resourceGroupName)-out.txt"
 
@@ -44,8 +44,8 @@ New-AzureRmResourceGroup -Name $resourceGroupName -Location "local"
 
 # Deploy template to resource group: Deploy using a local template and parameter file
 $key = New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName -ResourceGroupName $resourceGroupName `
-                                           -TemplateFile "C:\Kubernetes\new_azuredeploy.json" `
-                                           -TemplateParameterFile "C:\Kubernetes\new_azuredeploy.parameters.json" -Verbose
+                                           -TemplateFile "C:\Kubernetes\azuredeploy.json" `
+                                           -TemplateParameterFile "C:\Kubernetes\azuredeploy.parameters.json" -Verbose
 Write-Output $key
 $key.OutputsString > $resourceGroupOutputName
 Get-Date
