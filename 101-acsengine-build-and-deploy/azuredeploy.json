@@ -44,6 +44,13 @@
         "description": "The size of the Virtual Machine."
       }
     },
+    "buildAcsEngine": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "If true we will build latest acs-engine and then use the binary from build."
+      }
+    },
     "apiModel": {
       "type": "string",
       "metadata": {
@@ -77,7 +84,7 @@
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('apiModel'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModel'))]"
   },
   "resources": [
     {
