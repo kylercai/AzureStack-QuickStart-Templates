@@ -11,50 +11,44 @@ sleep 20
 # Script parameters #####################################################################################################################
 BUILD_ACS_ENGINE=${1}
 API_MODEL=${2}
-#SUBSCRIPTION_ID=${3}
 echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
 echo "API_MODEL: $API_MODEL"
 
-# Install Docker ########################################################################################################################
 echo "Update the system."
 sudo apt-get update -y
 
-echo "Add docker repo key."
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-echo "Add docker repo." 
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-echo "Update the system again."
-sudo apt-get update -y
-
-echo "Install docker"
-sudo apt-get install docker-ce -y
-
-# Get ACS-Engine repo and build #########################################################################################################
-echo "Install Make."
-sudo apt install make -y
-
-echo "checkout git project"
-git clone https://github.com/msazurestackworkloads/acs-engine
+echo "Clone the repo"
+git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v093
 cd acs-engine
-git checkout -b acs-engine-v093 origin/acs-engine-v093
 
-echo "Build developer environment."
-#make devenv
+if [ $BUILD_ACS_ENGINE == "True" ]
+then
+    echo "We are going to build ACS-Engine."
 
-echo "Build the repository."
-#make all
+	echo "Install docker"
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    sudo apt-get update -y
+    sudo apt-get install docker-ce -y
 
-echo "Write API model to a file."
-echo $API_MODEL > examples/azurestack/azurestack1.json
-echo $API_MODEL >> examples/azurestack/azurestack2.json
+    echo "Install Make."
+    sudo apt install make -y
 
-#echo "Generate the template using the API model."
-#./bin/acs-engine generate examples/azurestack/azurestack1.json
+    echo "Build developer environment."
+    make devenv
 
-# Deploy the template using AzureCLI ###################################################################################################
+    echo "Build the repository."
+    make all
+else
+    echo "We are going to use an exisiting ACS-Engine binary."
 
+    echo "Open the zip file from the repo location."
+    mkdir bin
+    tar -zxvf examples/azurestack/acs-engine.tgz
+    mv acs-engine bin/
+fi
 
-########################################################################################################################################
+echo "Generate the template using the API model."
+./bin/acs-engine --help
+
 echo "Completed test acsengine-build-and-deploy."

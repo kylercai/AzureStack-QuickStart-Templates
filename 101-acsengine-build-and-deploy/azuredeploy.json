@@ -84,7 +84,7 @@
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModel'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('buildAcsEngine'))]"
   },
   "resources": [
     {
@@ -247,7 +247,7 @@
         "autoUpgradeMinorVersion": "true",
         "settings": {
           "fileUris": [ "[concat(parameters('_artifactsLocation'), variables('scriptName'), '.sh')]" ],
-          "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/azs-acsengine-build-and-deploy.log 2>&1 &\" &')]",
+          "commandToExecute": "[concat('/bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/azs-acsengine-build-and-deploy.log 2>&1\"')]",
           "timestamp": "(Get-Date).Ticks",
           "enableInternalDNSCheck": "false"
         }
