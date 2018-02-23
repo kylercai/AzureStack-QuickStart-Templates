@@ -35,32 +35,36 @@ then
     sudo apt install make -y
 
     echo "Build developer environment."
-    make devenv
+    sudo make devenv
 
     echo "Build the repository."
-    make all
+    sudo make all
 else
     echo "We are going to use an exisiting ACS-Engine binary."
 
     echo "Open the zip file from the repo location."
-    mkdir bin
-    tar -zxvf examples/azurestack/acs-engine.tgz
-    mv acs-engine bin/
+    sudo mkdir bin
+    sudo tar -zxvf examples/azurestack/acs-engine.tgz
+    sudo mv acs-engine bin/
 fi
 
 echo "Printing help for acs-engine."
-./bin/acs-engine --help
+sudo ./bin/acs-engine --help
 
 echo "Download the API model."
-wget $API_MODEL_PATH --no-check-certificate
+sudo wget $API_MODEL_PATH --no-check-certificate
 
 echo "Inatalling pax"
-apt install pax -y
+sudo apt install pax -y
 
 file_name=$(basename $API_MODEL_PATH)
 echo "File name is: $file_name"
 
 echo "Generate the template using the API model."
-./bin/acs-engine generate $file_name
+sudo ./bin/acs-engine generate $file_name
+
+echo "Accessing the generated templates."
+sudo chmod 777 -R _output/
+cd _output/
 
 echo "Completed test acsengine-build-and-deploy."
