@@ -53,10 +53,14 @@ echo "Printing help for acs-engine."
 
 echo "Download the API model."
 wget $API_MODEL_PATH --no-check-certificate
-echo "$API_MODEL_PATH" | sed "s/.*\///" >> b
-echo "File name is: $b"
+
+echo "Inatalling pax"
+apt install pax -y
+
+file_name=$(basename $API_MODEL_PATH)
+echo "File name is: $file_name"
 
 echo "Generate the template using the API model."
-./bin/acs-engine generate $b
+./bin/acs-engine generate $file_name
 
 echo "Completed test acsengine-build-and-deploy."
