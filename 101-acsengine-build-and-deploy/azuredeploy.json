@@ -51,10 +51,10 @@
         "description": "If true we will build latest acs-engine and then use the binary from build."
       }
     },
-    "apiModel": {
+    "apiModelBlobPath": {
       "type": "string",
       "metadata": {
-        "description": "JSON api model in string format for the Kubernetes cluster (e.g. https://github.com/msazurestackworkloads/acs-engine/blob/acs-engine-v093/examples/azurestack/azurestack.json)."
+        "description": "Path to JSON api model stored in a storage account (e.g. https://github.com/msazurestackworkloads/acs-engine/blob/acs-engine-v093/examples/azurestack/azurestack.json)."
       }
     },
     "_artifactsLocation": {
@@ -84,7 +84,7 @@
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('buildAcsEngine'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModelBlobPath'))]"
   },
   "resources": [
     {
