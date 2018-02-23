@@ -48,13 +48,15 @@ else
     mv acs-engine bin/
 fi
 
-echo "Generate the template using the API model."
+echo "Printing help for acs-engine."
 ./bin/acs-engine --help
 
-echo "Download the API model"
+echo "Download the API model."
 wget $API_MODEL_PATH --no-check-certificate
 echo "$API_MODEL_PATH" | sed "s/.*\///" >> b
 echo "File name is: $b"
+
+echo "Generate the template using the API model."
 ./bin/acs-engine generate $b
 
 echo "Completed test acsengine-build-and-deploy."
