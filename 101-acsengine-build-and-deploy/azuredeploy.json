@@ -57,6 +57,42 @@
         "description": "Path to JSON api model stored in a storage account (e.g. https://github.com/msazurestackworkloads/acs-engine/blob/acs-engine-v093/examples/azurestack/azurestack.json)."
       }
     },
+    "tenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "Tenant Id."
+      }
+    },
+    "tenantSubscriptionId": {
+      "type": "string",
+      "metadata": {
+        "description": "Tenant Subcription Id."
+      }
+    },
+    "tenantUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Tenant Username."
+      }
+    },
+    "tenantPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "Tenant Password."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage account Name."
+      }
+    },
+    "storageResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage resource group."
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -84,7 +120,7 @@
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModelBlobPath'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModelBlobPath'), ' ', parameters('tenantId'), ' ', parameters('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('storageAccountName'), ' ', parameters('storageResourceGroup'))]"
   },
   "resources": [
     {
