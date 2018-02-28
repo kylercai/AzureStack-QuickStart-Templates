@@ -42,14 +42,14 @@ sudo apt install python-pip -y
 echo "Upgrading Python PIP."
 pip install --upgrade pip
 
-echo "Install AzureCLI."
+echo "Install AzureCLI package."
 sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
 
 echo 'Import the root CA certificate to python store.'
 PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
 sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
 
-echo "Clone the repo"
+echo "Clone the ACS-Engine repo"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v093
 cd acs-engine
 
@@ -72,7 +72,7 @@ then
     echo "Build the repository."
     sudo make all
 else
-    echo "We are going to use an exisiting ACS-Engine binary."
+    echo "We are going to use an existing ACS-Engine binary."
 
     echo "Open the zip file from the repo location."
     sudo mkdir bin
@@ -86,10 +86,10 @@ sudo ./bin/acs-engine --help
 echo "Download the API model."
 sudo wget $API_MODEL_PATH --no-check-certificate
 
-echo "Inatalling pax"
+echo "Inatalling pax for string manipulation."
 sudo apt install pax -y
 
-echo "Installing jq"
+echo "Installing jq for JSON manipulation."
 apt install jq -y
 
 FILE_NAME=$(basename $API_MODEL_PATH)
@@ -112,7 +112,7 @@ sudo chmod 777 -R _output/
 cd _output/
 
 ENVIRONMENT_NAME=AzureStackUser
-echo 'Register to the cloud'
+echo 'Register to the cloud.'
 az cloud register \
   --name $ENVIRONMENT_NAME \
   --endpoint-resource-manager $TENANT_ENDPOINT \
@@ -124,7 +124,7 @@ az cloud register \
 
 az cloud set --name $ENVIRONMENT_NAME
 
-echo 'Login to the cloud'
+echo 'Login to the cloud.'
 az login \
   --username $TENANT_USERNAME \
   --password $TENANT_PASSWORD \
