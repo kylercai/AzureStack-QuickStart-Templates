@@ -57,6 +57,18 @@
         "description": "Path to JSON api model stored in a storage account (e.g. https://github.com/msazurestackworkloads/acs-engine/blob/acs-engine-v093/examples/azurestack/azurestack.json)."
       }
     },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage account Name."
+      }
+    },
+    "storageResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage resource group."
+      }
+    },
     "tenantId": {
       "type": "string",
       "metadata": {
@@ -79,18 +91,6 @@
       "type": "string",
       "metadata": {
         "description": "Tenant Password."
-      }
-    },
-    "storageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Storage account Name."
-      }
-    },
-    "storageResourceGroup": {
-      "type": "string",
-      "metadata": {
-        "description": "Storage resource group."
       }
     },
     "_artifactsLocation": {

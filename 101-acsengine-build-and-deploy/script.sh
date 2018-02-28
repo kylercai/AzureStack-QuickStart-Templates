@@ -29,6 +29,26 @@ echo "AZS_SA_RESOURCE_GROUP: $AZS_SA_RESOURCE_GROUP"
 echo "Update the system."
 sudo apt-get update -y
 
+echo "Install AzureCLI."
+echo "Update prerequiste for AzureCLI."
+sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
+
+echo "Install Python 3.5"
+sudo apt-get install python3.5 -y
+
+echo "Install Python PIP."
+sudo apt install python-pip -y
+
+echo "Upgrading Python PIP."
+pip install --upgrade pip
+
+echo "Install AzureCLI."
+sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
+
+echo 'Import the root CA certificate to python store.'
+PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
+sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
+
 echo "Clone the repo"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v093
 cd acs-engine
@@ -78,11 +98,11 @@ echo "File name is: $FILE_NAME"
 AZS_SA_CONTAINER_NAME=$(basename $(dirname $API_MODEL_PATH))
 echo "AzureStack container name is: $AZS_SA_CONTAINER_NAME"
 
-MASTER_DNS_PREFIX=$(jq '.properties.masterProfile.dnsPrefix' $FILE_NAME)
-TENANT_ENDPOINT=$(jq '.properties.cloudProfile.resourceManagerEndpoint' $FILE_NAME)
-STORAGE_ENDPOINT_SUFFIX=$(jq '.properties.cloudProfile.storageEndpointSuffix' $FILE_NAME)
+MASTER_DNS_PREFIX=$(jq '.properties.masterProfile.dnsPrefix' $FILE_NAME | tr -d \")
+TENANT_ENDPOINT=$(jq '.properties.cloudProfile.resourceManagerEndpoint' $FILE_NAME | tr -d \")
+STORAGE_ENDPOINT_SUFFIX=$(jq '.properties.cloudProfile.storageEndpointSuffix' $FILE_NAME | tr -d \")
 KEYVAULT_DNS_SUFFIX=".$(jq '.properties.cloudProfile.keyVaultDNSSuffix' $FILE_NAME | tr -d \")"
-GRAPH_ENDPOINT=$(jq '.properties.cloudProfile.graphEndpoint' $FILE_NAME)
+GRAPH_ENDPOINT=$(jq '.properties.cloudProfile.graphEndpoint' $FILE_NAME | tr -d \")
 
 echo "Generate the template using the API model."
 sudo ./bin/acs-engine generate $FILE_NAME
@@ -90,26 +110,6 @@ sudo ./bin/acs-engine generate $FILE_NAME
 echo "Accessing the generated templates."
 sudo chmod 777 -R _output/
 cd _output/
-
-echo "Install AzureCLI."
-echo "Update prerequiste for AzureCLI."
-sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
-
-echo "Install Python 3.5"
-sudo apt-get install python3.5 -y
-
-echo "Install Python PIP."
-sudo apt install python-pip -y
-
-echo "Upgrading Python PIP."
-pip install --upgrade pip
-
-echo "Install AzureCLI."
-sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
-
-echo 'Import the root CA certificate to python store.'
-PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
-sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
 
 ENVIRONMENT_NAME=AzureStackUser
 echo 'Register to the cloud'
