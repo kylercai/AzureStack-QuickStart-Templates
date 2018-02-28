@@ -98,7 +98,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/radhikagupta5/azurestack-quickstart-templates/radhikgu-acs/101-acsengine-build-and-deploy/"
+      "defaultValue": "https://raw.githubusercontent.com/radhikagupta5/azurestack-quickstart-templates/radhikgu-acs/101-acsengine-generate-template/"
     }
   },
   "variables": {
@@ -283,7 +283,7 @@
         "autoUpgradeMinorVersion": "true",
         "settings": {
           "fileUris": [ "[concat(parameters('_artifactsLocation'), variables('scriptName'), '.sh')]" ],
-          "commandToExecute": "[concat('/bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/azs-acsengine-build-and-deploy.log 2>&1\"')]",
+          "commandToExecute": "[concat('/bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/acsengine-generate-template.log 2>&1\"')]",
           "timestamp": "(Get-Date).Ticks",
           "enableInternalDNSCheck": "false"
         }
