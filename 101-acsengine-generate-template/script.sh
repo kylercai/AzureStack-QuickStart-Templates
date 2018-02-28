@@ -136,13 +136,13 @@ echo 'Get connection string.'
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string -n $AZS_SA_NAME --resource-group $AZS_SA_RESOURCE_GROUP --query connectionString)
 export AZURE_STORAGE_ACCOUNT=$AZS_SA_NAME
 
-echo 'AZURE_STORAGE_CONNECTION_STRING: $AZURE_STORAGE_CONNECTION_STRING'
-echo 'AZURE_STORAGE_ACCOUNT: $AZURE_STORAGE_ACCOUNT'
+echo "AZURE_STORAGE_CONNECTION_STRING: $AZURE_STORAGE_CONNECTION_STRING"
+echo "AZURE_STORAGE_ACCOUNT: $AZURE_STORAGE_ACCOUNT"
 
 MYDIR=$PWD
-echo 'Current directory is: $MYDIR'
+echo "Current directory is: $MYDIR"
 
-echo 'Uploading templates to the storage account: $AZURE_STORAGE_ACCOUNT, Container: $AZS_SA_CONTAINER_NAME'
+echo "Uploading templates to the storage account: $AZURE_STORAGE_ACCOUNT, Container: $AZS_SA_CONTAINER_NAME"
 
 az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
@@ -153,9 +153,6 @@ az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
   --name "$MASTER_DNS_PREFIX/azuredeploy.parameters.json" \
   --file "$MYDIR/$MASTER_DNS_PREFIX/azuredeploy.parameters.json"
-
-
-
 
 
 
