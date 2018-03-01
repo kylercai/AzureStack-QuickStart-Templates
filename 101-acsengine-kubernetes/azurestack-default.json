@@ -1,0 +1,62 @@
+{
+  "apiVersion": "vlabs",
+  "properties": {
+    "orchestratorProfile": {
+      "orchestratorType": "Kubernetes",
+      "orchestratorRelease": "1.7",
+	    "kubernetesConfig": {
+        "CustomHyperkubeImage": "msazurestackdocker/kubernetes:0.9008"
+      }
+    },
+	  "cloudProfile": {
+	      "name": "AzureStackCloud",
+        "managementPortalURL": "",
+        "publishSettingsURL": "",
+        "serviceManagementEndpoint": "https://management.azurestackci09.onmicrosoft.com/94d1132d-e74b-4ee3-b726-4d763cab3705",
+        "resourceManagerEndpoint": "https://management.local.azurestack.external",
+        "activeDirectoryEndpoint": "https://login.windows.net/",
+        "galleryEndpoint": "https://portal.local.azurestack.external:30015/",
+        "keyVaultEndpoint": "https://vault.local.azurestack.external",
+        "graphEndpoint": "https://graph.windows.net/",
+        "storageEndpointSuffix": "local.azurestack.external",
+        "sqlDatabaseDNSSuffix": "",
+        "trafficManagerDNSSuffix": "",
+        "keyVaultDNSSuffix": "vault.local.azurestack.external",
+        "serviceBusEndpointSuffix": "",
+        "serviceManagementVMDNSSuffix": "cloudapp.net",
+        "resourceManagerVMDNSSuffix": "cloudapp.azurestack.external",
+        "containerRegistryDNSSuffix": "",
+        "resourceManagerRootCertificate": "83E04DD9CFCBA471FF442316F9DAFAD8A9A9ADE7",
+        "location": "local"
+	  },
+    "masterProfile": {
+      "count": 1,
+      "dnsPrefix": "radhikgu-k81d",
+      "vmSize": "Standard_D2_v2",
+	    "StorageProfile" : "StorageAccount"
+    },
+    "agentPoolProfiles": [
+      {
+        "name": "agentpool1",
+        "count": 2,
+        "vmSize": "Standard_D2_v2",
+        "availabilityProfile": "AvailabilitySet",
+		    "StorageProfile" : "StorageAccount"
+      }
+    ],
+    "linuxProfile": {
+      "adminUsername": "azureuser",
+      "ssh": {
+        "publicKeys": [
+          {
+            "keyData": "GEN-SSH-PUB-KEY"
+          }
+        ]
+      }
+    },
+    "servicePrincipalProfile": {
+      "clientId": "clientIdValue",
+      "secret": "secretValue"
+    }
+  }
+}
