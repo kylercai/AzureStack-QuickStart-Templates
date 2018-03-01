@@ -8,7 +8,7 @@ whoami
 
 sleep 20
 
-# Script parameters #####################################################################################################################
+# Script parameters
 BUILD_ACS_ENGINE=${1}
 API_MODEL_PATH=${2}
 TENANT_ID=${3}
