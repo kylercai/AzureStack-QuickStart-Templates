@@ -1,4 +1,4 @@
-﻿function Get-RemoteSSLCertificate
+﻿function Get-AcseRemoteSSLCertificate
 {
     param
     (
@@ -37,7 +37,7 @@
 	$certificateThumbprint
 }
 
-function Get-AzureStackEnvironment
+function Get-AcseAzureStackEnvironment
 {
     param
     (
@@ -181,7 +181,7 @@ function New-AcseStorageAccount
 
 	if (-not ($NamingSuffix)) 
 	{
-		$NamingSuffix = 100000..999999 | Get-Random
+		$NamingSuffix = 10000..99999 | Get-Random
 	}
 	$resourceGroupName = "k8ssa-" + $NamingSuffix
 	$storageAccountName = "k8ssa" + $NamingSuffix
@@ -257,7 +257,7 @@ function Prepare-AcseApiModel
 		[string]$NamingSuffix,
 
 		[Parameter(Mandatory = $false)]
-		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:0.9008"
+		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:1803.1"
     )
 
 	Write-Verbose "Using CloudAdmin: $CloudAdminUsername."
@@ -284,13 +284,13 @@ function Prepare-AcseApiModel
     $tenantMetadataEndpointUrl = "$tenantArmEndpoint/metadata/endpoints?api-version=1.0"
     
     Write-Verbose "Retrieving Root CA certificated from: $tenantMetadataEndpointUrl" -Verbose
-    $certificateThumbprint = Get-RemoteSSLCertificate -Url $tenantMetadataEndpointUrl
+    $certificateThumbprint = Get-AcseRemoteSSLCertificate -Url $tenantMetadataEndpointUrl
 	Write-Verbose "Retrieved certificate thumbprint is: $certificateThumbprint" -Verbose
 
     Write-Verbose "TenantId: $aadTenantId, TenantArmEndpoint: $tenantArmEndpoint" -Verbose
 
 	Write-Verbose "Adding Tenant AzureStack Environment." -Verbose
-    $environment = Get-AzureStackEnvironment -ArmEndpoint $tenantArmEndpoint -EnvironmentName "AzureStackUser"
+    $environment = Get-AcseAzureStackEnvironment -ArmEndpoint $tenantArmEndpoint -EnvironmentName "AzureStackUser"
 
     # Create service principal in AAD
     $spn = New-AcseServicePrincipal -AadTenantId $aadTenantId -ServiceAdminCredential $serviceAdminCredential

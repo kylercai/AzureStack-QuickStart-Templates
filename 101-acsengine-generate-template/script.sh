@@ -1,6 +1,6 @@
 set -e
 
-echo "Starting test for acsengine-build-and-deploy."
+echo "Starting test for acsengine-generate-template."
 date
 
 echo "Running as:"
@@ -154,8 +154,7 @@ az storage blob upload \
   --name "$MASTER_DNS_PREFIX/azuredeploy.parameters.json" \
   --file "$MYDIR/$MASTER_DNS_PREFIX/azuredeploy.parameters.json"
 
-
-
+echo "Ending test for acsengine-generate-template."
 
 
 

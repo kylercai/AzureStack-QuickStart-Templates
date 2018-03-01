@@ -5,7 +5,7 @@
       "orchestratorType": "Kubernetes",
       "orchestratorRelease": "1.7",
 	    "kubernetesConfig": {
-        "CustomHyperkubeImage": "msazurestackdocker/kubernetes:0.9008"
+        "CustomHyperkubeImage": "msazurestackdocker/kubernetes:1803.1"
       }
     },
 	  "cloudProfile": {
