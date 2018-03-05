@@ -85,7 +85,7 @@
     "addressPrefix": "10.0.0.0/24",
     "subnetName": "mySubnet",
     "subnetPrefix": "10.0.0.0/24",
-    "storageAccountName": "[concat('sa', resourceGroup().name)]",
+    "storageAccountName": "[concat('sa', parameters('existingStorageAccountName'))]",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "myPublicIP",
     "publicIPAddressType": "Dynamic",

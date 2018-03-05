@@ -52,9 +52,20 @@ $apiModel
 Name                           Value                                                                                                                                                                                 
 ----                           -----                                                                                                                                                                                 
 blobRootPath                   https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281                                                                                                            
-spnApplicationId                                                                                                                                                                                                     
+spnApplicationId               47180043-c0ff-4f97-95aa-2b8a23b3aace                                                                                                                                                                                     
 apiModelBlobPath               https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281/azurestack.json                                                                                            
 storageAccountName             k8ssa62281                                                                                                                                                                            
 storageAccountResourceGroup    k8ssa-62281   
 
-5) 
+5) Generate the templates
+One can use: 101-acsengine-generate-template
+
+6) Ensuring that the service principal has access to the subcription.
+
+7) Deploy the kubernetes templates
+
+$templateParamFileBlobPath = '{0}/{1}/{2}' -f $blobRootPath, $masterDnsPrefix, "azuredeploy.parameters.json"
+$templateFileBlobPath = '{0}/{1}/{2}' -f $blobRootPath, $masterDnsPrefix, "azuredeploy.json"
+
+Step 5 will upload the files to above location.
+Download the file from above location and deploy.
