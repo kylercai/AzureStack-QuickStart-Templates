@@ -86,7 +86,7 @@ sudo ./bin/acs-engine --help
 echo "Download the API model."
 sudo wget $API_MODEL_PATH --no-check-certificate
 
-echo "Inatalling pax for string manipulation."
+echo "Installing pax for string manipulation."
 sudo apt install pax -y
 
 echo "Installing jq for JSON manipulation."
