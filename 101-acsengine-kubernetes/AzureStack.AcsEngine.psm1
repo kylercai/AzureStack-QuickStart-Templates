@@ -241,9 +241,6 @@ function Prepare-AcseApiModel
 		[string]$TenantSubscriptionId,
 
 		[Parameter(Mandatory = $true)]
-		[string]$ResourceManagerVMDNSSuffix,
-
-		[Parameter(Mandatory = $true)]
 		[string]$MasterDnsPrefix,
 
 		[Parameter(Mandatory = $true)]
@@ -273,6 +270,10 @@ function Prepare-AcseApiModel
     $tenantArmEndpoint = $stampInfo.TenantExternalEndpoints.TenantResourceManager.TrimEnd("/")
     $tenantMetadataEndpointUrl = "$tenantArmEndpoint/metadata/endpoints?api-version=1.0"
     
+	$resourceManagerVMDNSSuffix = $stampInfo.ExternalDomainFQDN
+	$array = $resourceManagerVMDNSSuffix.Split(".")
+	$resourceManagerVMDNSSuffix = 'cloudapp.'+ ($array[1..($array.Length -1)] -join ".")
+
     Write-Verbose "Retrieving Root CA certificated from: $tenantMetadataEndpointUrl" -Verbose
     $certificateThumbprint = Get-AcseRemoteSSLCertificate -Url $tenantMetadataEndpointUrl
 	Write-Verbose "Retrieved certificate thumbprint is: $certificateThumbprint" -Verbose
@@ -299,7 +300,7 @@ function Prepare-AcseApiModel
     $apiModel.properties.cloudProfile.keyVaultEndpoint = $environment.AzureKeyVaultServiceEndpointResourceId
     $apiModel.properties.cloudProfile.storageEndpointSuffix = $environment.StorageEndpointSuffix
     $apiModel.properties.cloudProfile.keyVaultDNSSuffix = $environment.AzureKeyVaultDnsSuffix
-	$apiModel.properties.cloudProfile.resourceManagerVMDNSSuffix = $ResourceManagerVMDNSSuffix
+	$apiModel.properties.cloudProfile.resourceManagerVMDNSSuffix = $resourceManagerVMDNSSuffix
     $apiModel.properties.cloudProfile.resourceManagerRootCertificate = $certificateThumbprint
     $apiModel.properties.cloudProfile.location = $regionName
 

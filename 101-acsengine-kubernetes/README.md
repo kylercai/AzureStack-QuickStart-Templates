@@ -34,7 +34,7 @@ Please follow the steps below to collect stamp information for API model, genera
     ImageURI = "https://azurestacktemplate.blob.core.windows.net/azurestacktemplate-public-container/Ubuntu1604-201711072.vhd"
     OSType = "Linux"
 
-	e) You also need to download Custom Script for Linux, 2.0.3 from marketplace.
+	e) You also need to download Custom Script for Linux, 2.0.3 from the marketplace.
 
 2) Ensure that you have a valid subscription in your AzureStack enviroment.
 $tenantSubscriptionId = "4a4be501-4cb1-431b-a55d-b700ccfc3edd"
@@ -61,11 +61,9 @@ $apiModelParameters = @{'ErcsComputerName' = "10.193.130.224"
 
 $apiModel = Prepare-AcseApiModel @apiModelParameters
 
-It will upload the API model to a storage account and provide the needed information.
-E.g.:
+It will upload the API model to a storage account and provide the needed information.E.g.:
 
 $apiModel
-
 Name                           Value                                                                                                                                                                                 
 ----                           -----                                                                                                                                                                                 
 blobRootPath                   https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281                                                                                                            
@@ -77,6 +75,7 @@ storageAccountResourceGroup    k8ssa-62281
 5) Generate the templates
 
 One can use: 101-acsengine-generate-template
+Link: https://github.com/radhikagupta5/AzureStack-QuickStart-Templates/tree/radhikgu-acs/101-acsengine-generate-template
 If this template is used then following parameters should be give: 
 adminUsername, adminPassword, apiModelBlobPath, tenantId, tenantSubscriptionId, tenantUsername, tenantPassword, existingStorageAccountName and existingStorageAccountResourceGroup
 
