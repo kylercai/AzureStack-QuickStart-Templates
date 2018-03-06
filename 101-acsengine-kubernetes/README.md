@@ -15,10 +15,10 @@ Here are some important links:
 3) Example of working JSON: 
 	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v093/examples/azurestack/azurestack.json
  
-Please follow the steps below to collect stamp information for API model, generate and deploy a template.
+STEPS: Please follow the steps below to collect stamp information for API model, generate and deploy a template.
 
 1) Prerequistes:
-	a) You need to be able to create SPN (applications) in your tenant AAD for Kubernetes deployment. Following can be used to check that,
+	a) You need to be able to create SPN (applications) in your tenant AAD for Kubernetes deployment. Following can be used to check if you have appropriate permissions,
 	https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#check-azure-active-directory-permissions
 
 	b) SSH key is required to login to any of the Linux VMs.
@@ -72,21 +72,22 @@ apiModelBlobPath               https://k8ssa62281.blob.redmond.azurestack.corp.m
 storageAccountName             k8ssa62281                                                                                                                                                                            
 storageAccountResourceGroup    k8ssa-62281   
 
-5) Generate the templates
-
-One can use: 101-acsengine-generate-template
-Link: https://github.com/radhikagupta5/AzureStack-QuickStart-Templates/tree/radhikgu-acs/101-acsengine-generate-template
-If this template is used then following parameters should be give: 
-adminUsername, adminPassword, apiModelBlobPath, tenantId, tenantSubscriptionId, tenantUsername, tenantPassword, existingStorageAccountName and existingStorageAccountResourceGroup
-
-6) Ensuring that the service principal has access to the subcription.
+5) Ensuring that the service principal has access to the subcription.
 
 Assign-AcseServicePrincipal -TenantArmEndpoint $tenantArmEndpoint -AadTenantId $aadTenantId -TenantAdminCredential $tenantAdminCredential -TenantSubscriptionId $tenantSubscriptionId -ApplicationId $spnApplicationId 
 
-7) Deploy the kubernetes templates
 
-$templateParamFileBlobPath = '{0}/{1}/{2}' -f $blobRootPath, $masterDnsPrefix, "azuredeploy.parameters.json"
-$templateFileBlobPath = '{0}/{1}/{2}' -f $blobRootPath, $masterDnsPrefix, "azuredeploy.json"
+6) Generate the template (on a linux VM),
 
-Step 5 will upload the files to above locations.
-Download the file from above location and deploy.
+git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v093
+cd acs-engine
+sudo tar -zxvf examples/azurestack/acs-engine.tgz
+sudo wget <$apiModelBlobPath from output of Step 4> --no-check-certificate
+sudo ./acs-engine generate azurestack.json
+cd _output/
+
+7) Deploy the kubernetes template using,
+
+"azuredeploy.parameters.json"
+"azuredeploy.json"
+
