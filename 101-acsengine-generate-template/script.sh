@@ -1,6 +1,6 @@
 set -e
 
-echo "Starting test for acsengine-build-and-deploy."
+echo "Starting test for acsengine-generate-template."
 date
 
 echo "Running as:"
@@ -86,7 +86,7 @@ sudo ./bin/acs-engine --help
 echo "Download the API model."
 sudo wget $API_MODEL_PATH --no-check-certificate
 
-echo "Inatalling pax for string manipulation."
+echo "Installing pax for string manipulation."
 sudo apt install pax -y
 
 echo "Installing jq for JSON manipulation."
@@ -154,8 +154,7 @@ az storage blob upload \
   --name "$MASTER_DNS_PREFIX/azuredeploy.parameters.json" \
   --file "$MYDIR/$MASTER_DNS_PREFIX/azuredeploy.parameters.json"
 
-
-
+echo "Ending test for acsengine-generate-template."
 
 
 

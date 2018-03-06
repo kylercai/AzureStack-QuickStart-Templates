@@ -1,4 +1,4 @@
-﻿function Get-RemoteSSLCertificate
+﻿function Get-AcseRemoteSSLCertificate
 {
     param
     (
@@ -37,7 +37,7 @@
 	$certificateThumbprint
 }
 
-function Get-AzureStackEnvironment
+function Set-AcseAzureStackEnvironment
 {
     param
     (
@@ -48,23 +48,22 @@ function Get-AzureStackEnvironment
         [String] $EnvironmentName = "AzureStackUser"
     )
 
-    $session = New-PSSession -ErrorAction Stop
-
-    Invoke-Command -Session $session -ScriptBlock {
-        $environment = Get-AzureRmEnvironment -Name $using:EnvironmentName
-        if ($environment -eq $null)
-        {
-            $environment = Add-AzureRmEnvironment -Name $using:EnvironmentName -ArmEndpoint $using:ArmEndpoint -Verbose -ErrorAction Stop
-        }
-
-        $result = @{'ActiveDirectoryServiceEndpointResourceId'=$environment.ActiveDirectoryServiceEndpointResourceId;
-					'GalleryUrl'=$environment.GalleryUrl;
-                    'StorageEndpointSuffix'=$environment.StorageEndpointSuffix;
-                    'AzureKeyVaultDnsSuffix'=$environment.AzureKeyVaultDnsSuffix; 
-                    'AzureKeyVaultServiceEndpointResourceId'=$environment.AzureKeyVaultServiceEndpointResourceId}
-        $result
+    
+	Write-Verbose "Creating/Retrieving tenant environment at endpoint: $ArmEndpoint" 
+	$environment = Get-AzureRmEnvironment -Name $EnvironmentName 
+	if ($environment -eq $null)
+    {
+		$environment = Add-AzureRmEnvironment -Name $EnvironmentName -ArmEndpoint $ArmEndpoint -Verbose -ErrorAction Stop
     }
-    Remove-PSSession -Session $session
+
+    $result = @{'ActiveDirectoryServiceEndpointResourceId'=$environment.ActiveDirectoryServiceEndpointResourceId;
+				'GalleryUrl'=$environment.GalleryUrl;
+                'StorageEndpointSuffix'=$environment.StorageEndpointSuffix;
+                'AzureKeyVaultDnsSuffix'=$environment.AzureKeyVaultDnsSuffix; 
+                'AzureKeyVaultServiceEndpointResourceId'=$environment.AzureKeyVaultServiceEndpointResourceId}
+    $result
+
+	Write-Verbose "Tenant environment created at endpoint: $ArmEndpoint"
 }
 
 function New-AcseServicePrincipal
@@ -90,7 +89,7 @@ function New-AcseServicePrincipal
         $null = Login-AzureRmAccount -Environment $publicCloud -Credential $using:ServiceAdminCredential -TenantId $using:AadTenantId -ErrorAction Stop
 
         $applicationName = "Kubernetes-WLK-$(New-Guid)"
-        $password = New-Guid
+        $password = (New-Guid).ToString()
         $application = New-AzureRmADApplication -DisplayName $applicationName -IdentifierUris "http://$applicationName" -HomePage "http://localhost" -Password $password   
         $applicationId = $application.ApplicationId
         $null = New-AzureRmADServicePrincipal -ApplicationId $applicationId
@@ -132,7 +131,7 @@ function Assign-AcseServicePrincipal
 		{
 			$environment = Add-AzureRmEnvironment -Name $environmentName -ArmEndpoint $using:TenantArmEndpoint -Verbose -ErrorAction Stop
 		}
-		Login-AzureRmAccount -EnvironmentName $environmentName -TenantId $using:AadTenantId -Credential $using:TenantAdminCredential | Out-Null
+		Login-AzureRmAccount -EnvironmentName $environmentName -TenantId $using:AadTenantId -Credential $using:TenantAdminCredential -ErrorAction Stop | Out-Null
         
 		$subscription = Select-AzureRmSubscription -SubscriptionId $using:TenantSubscriptionId
 
@@ -175,13 +174,13 @@ function New-AcseStorageAccount
     {
         $environment = Add-AzureRmEnvironment -Name $environmentName -ArmEndpoint $TenantArmEndpoint -Verbose -ErrorAction Stop
     }
-	Login-AzureRmAccount -EnvironmentName $environmentName -TenantId $AadTenantId -Credential $TenantAdminCredential | Out-Null
+	Login-AzureRmAccount -EnvironmentName $environmentName -TenantId $AadTenantId -Credential $TenantAdminCredential  -ErrorAction Stop | Out-Null
 
-	$subscription = Select-AzureRmSubscription -SubscriptionId $TenantSubscriptionId
+	$subscription = Select-AzureRmSubscription -SubscriptionId $TenantSubscriptionId -ErrorAction Stop
 
 	if (-not ($NamingSuffix)) 
 	{
-		$NamingSuffix = 100000..999999 | Get-Random
+		$NamingSuffix = 10000..99999 | Get-Random
 	}
 	$resourceGroupName = "k8ssa-" + $NamingSuffix
 	$storageAccountName = "k8ssa" + $NamingSuffix
@@ -190,14 +189,14 @@ function New-AcseStorageAccount
 	Write-Verbose "Creating or retrieving resource group: $resourceGroupName." -Verbose
 	if (-not (Get-AzureRmResourceGroup -Name $resourceGroupName -Location $Location -ErrorAction SilentlyContinue)) 
 	{
-		New-AzureRmResourceGroup -Name $resourceGroupName -Location $Location | Out-Null
+		New-AzureRmResourceGroup -Name $resourceGroupName -Location $Location -ErrorAction Stop| Out-Null
 	}
 
 	Write-Verbose "Creating or retrieving storage account: $storageAccountName." -Verbose
 	$storageAccount = Get-AzureRmStorageAccount -Name $storageAccountName -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue
 	if (-not ($storageAccount)) 
 	{
-		$storageAccount = New-AzureRmStorageAccount -Name $storageAccountName -Location $Location -ResourceGroupName $resourceGroupName -Type Standard_LRS
+		$storageAccount = New-AzureRmStorageAccount -Name $storageAccountName -Location $Location -ResourceGroupName $resourceGroupName -Type Standard_LRS -ErrorAction Stop
 	}
 	Write-Verbose "Storage account AbsoluteUri: $($storageAccount.PrimaryEndpoints.Blob.AbsoluteUri)"
 	Set-AzureRmCurrentStorageAccount -StorageAccountName $storageAccountName -ResourceGroupName $resourceGroupName | Out-Null
@@ -230,16 +229,10 @@ function Prepare-AcseApiModel
 		[string]$ErcsComputerName,
 
 		[Parameter(Mandatory = $true)]
-		[string]$CloudAdminUsername,
+		[PSCredential]$CloudAdminCredential,
 
-		[Parameter(Mandatory = $true)]
-		[securestring]$CloudAdminPassword,
-
-		[Parameter(Mandatory = $true)]
-		[string]$ServiceAdminUsername,
-
-		[Parameter(Mandatory = $true)]
-		[securestring]$ServiceAdminPassword,
+        [Parameter(Mandatory = $true)]
+		[PSCredential]$ServiceAdminCredential,
 
 		[Parameter(Mandatory = $true)]
 		[PSCredential]$TenantAdminCredential,
@@ -257,19 +250,13 @@ function Prepare-AcseApiModel
 		[string]$NamingSuffix,
 
 		[Parameter(Mandatory = $false)]
-		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:0.9008"
+		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:1803.1"
     )
-
-	Write-Verbose "Using CloudAdmin: $CloudAdminUsername."
-	$cloudAdminCredential = New-Object PSCredential($CloudAdminUsername, $CloudAdminPassword)
-
-	Write-Verbose "Using ServiceAdmin: $ServiceAdminUsername."
-	$serviceAdminCredential = New-Object PSCredential($ServiceAdminUsername, $ServiceAdminPassword)
 
     # Retrieve Stamp information.
 	Write-Verbose "Retrieving stamp information from ERCS: $ErcsComputerName." -Verbose
     winrm s winrm/config/client "@{TrustedHosts=`"$ErcsComputerName`"}" | Out-Null
-    $stampInfo = Invoke-Command -ComputerName $ErcsComputerName -Credential $cloudAdminCredential -ConfigurationName PrivilegedEndpoint -ScriptBlock { Get-AzureStackStampInformation } 
+    $stampInfo = Invoke-Command -ComputerName $ErcsComputerName -Credential $CloudAdminCredential -ConfigurationName PrivilegedEndpoint -ScriptBlock { Get-AzureStackStampInformation } 
 
     if ($stampInfo.IdentitySystem -ne "AzureAD")
     {
@@ -283,17 +270,21 @@ function Prepare-AcseApiModel
     $tenantArmEndpoint = $stampInfo.TenantExternalEndpoints.TenantResourceManager.TrimEnd("/")
     $tenantMetadataEndpointUrl = "$tenantArmEndpoint/metadata/endpoints?api-version=1.0"
     
+	$resourceManagerVMDNSSuffix = $stampInfo.ExternalDomainFQDN
+	$array = $resourceManagerVMDNSSuffix.Split(".")
+	$resourceManagerVMDNSSuffix = 'cloudapp.'+ ($array[1..($array.Length -1)] -join ".")
+
     Write-Verbose "Retrieving Root CA certificated from: $tenantMetadataEndpointUrl" -Verbose
-    $certificateThumbprint = Get-RemoteSSLCertificate -Url $tenantMetadataEndpointUrl
+    $certificateThumbprint = Get-AcseRemoteSSLCertificate -Url $tenantMetadataEndpointUrl
 	Write-Verbose "Retrieved certificate thumbprint is: $certificateThumbprint" -Verbose
 
     Write-Verbose "TenantId: $aadTenantId, TenantArmEndpoint: $tenantArmEndpoint" -Verbose
 
 	Write-Verbose "Adding Tenant AzureStack Environment." -Verbose
-    $environment = Get-AzureStackEnvironment -ArmEndpoint $tenantArmEndpoint -EnvironmentName "AzureStackUser"
+    $environment = Set-AcseAzureStackEnvironment -ArmEndpoint $tenantArmEndpoint -EnvironmentName "AzureStackUser"
 
     # Create service principal in AAD
-    $spn = New-AcseServicePrincipal -AadTenantId $aadTenantId -ServiceAdminCredential $serviceAdminCredential
+    $spn = New-AcseServicePrincipal -AadTenantId $aadTenantId -ServiceAdminCredential $ServiceAdminCredential
     Write-Verbose "Created new SPN ClientID: $($spn.applicationId), Secret: $($spn.password)" -Verbose
 
     # Prepare the API model based on the current AzureStack environment.
@@ -309,6 +300,7 @@ function Prepare-AcseApiModel
     $apiModel.properties.cloudProfile.keyVaultEndpoint = $environment.AzureKeyVaultServiceEndpointResourceId
     $apiModel.properties.cloudProfile.storageEndpointSuffix = $environment.StorageEndpointSuffix
     $apiModel.properties.cloudProfile.keyVaultDNSSuffix = $environment.AzureKeyVaultDnsSuffix
+	$apiModel.properties.cloudProfile.resourceManagerVMDNSSuffix = $resourceManagerVMDNSSuffix
     $apiModel.properties.cloudProfile.resourceManagerRootCertificate = $certificateThumbprint
     $apiModel.properties.cloudProfile.location = $regionName
 
@@ -317,6 +309,7 @@ function Prepare-AcseApiModel
     $apiModel.properties.servicePrincipalProfile.clientId = $spn.applicationId
     $apiModel.properties.servicePrincipalProfile.secret = $spn.password
 
+	Write-Verbose "Placing the API model to local location." -Verbose
 	$localFilePathForApiModel = "$PSScriptRoot\azurestack.json"
     $apiModel | ConvertTo-Json -Depth 100 | Out-File -FilePath $localFilePathForApiModel -Encoding ascii
 
@@ -328,7 +321,7 @@ function Prepare-AcseApiModel
 					'LocalFilePath' = $localFilePathForApiModel;
 					'NamingSuffix' = $NamingSuffix }
 
-	# Upload the locally created API model to a Storage Account.
+	Write-Verbose "Upload the locally created API model to a Storage Account." -Verbose
 	$apiModel = New-AcseStorageAccount @saParameters
 	$apiModel.Add('spnApplicationId', $spn.applicationId);
 
