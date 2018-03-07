@@ -53,32 +53,25 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
 
 4) Call the method to prepare API model,
 
-Highly recommend using naming suffix to keep unique DNS in shared environments.
+	Highly recommend using naming suffix to keep unique DNS in shared environments.
 
-$namingSuffix = 10000..99999 | Get-Random
+	$namingSuffix = 10000..99999 | Get-Random
 
-$masterDnsPrefix = "k8s-" + $namingSuffix
+	$masterDnsPrefix = "k8s-" + $namingSuffix
 
-$apiModelParameters = @{'ErcsComputerName' = "10.193.130.224";
-						'CloudAdminCredential' = $cloudAdminCredential;
-						'ServiceAdminCredential' = $serviceAdminCredential;
-						'TenantAdminCredential' = $tenantAdminCredential;
-						'TenantSubscriptionId' = $tenantSubscriptionId;
-						'MasterDnsPrefix' = $masterDnsPrefix;
-						'LinuxVmSshKey' = $acsSshKey;
-						'NamingSuffix' = $namingSuffix;}
+	$apiModelParameters = @{'ErcsComputerName' = "10.193.130.224";
+							'CloudAdminCredential' = $cloudAdminCredential;
+							'ServiceAdminCredential' = $serviceAdminCredential;
+							'TenantAdminCredential' = $tenantAdminCredential;
+							'TenantSubscriptionId' = $tenantSubscriptionId;
+							'MasterDnsPrefix' = $masterDnsPrefix;
+							'LinuxVmSshKey' = $acsSshKey;
+							'NamingSuffix' = $namingSuffix;}
 
-$apiModel = Prepare-AcseApiModel @apiModelParameters
+	$apiModel = Prepare-AcseApiModel @apiModelParameters
 
-It will upload the API model to a storage account and provide the needed information.E.g.: $apiModel
-
-Name                           Value                                                                                                                                                                                 
-----                           -----                                                                                                                                                                                 
-blobRootPath                   https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281                                                                                                            
-spnApplicationId               47180043-c0ff-4f97-95aa-2b8a23b3aace                                                                                                                                                                                     
-apiModelBlobPath               https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281/azurestack.json                                                                                            
-storageAccountName             k8ssa62281                                                                                                                                                                            
-storageAccountResourceGroup    k8ssa-62281   
+	It will upload the API model to a storage account and provide the link to API model. For example: 
+	$apiModel.apiModelBlobPath: https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281/azurestack.json                                                                                            
 
 5) Ensuring that the service principal has access to the subcription.
 
