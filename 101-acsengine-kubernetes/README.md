@@ -12,7 +12,7 @@ Here are some important links:
 2) Linux binary: 
 	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v093/examples/azurestack/acs-engine.tgz
 
-3) Example of working JSON: 
+3) Example of working JSON (API model): 
 	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v093/examples/azurestack/azurestack.json
  
 
