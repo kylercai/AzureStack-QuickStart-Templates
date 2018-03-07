@@ -25,13 +25,12 @@ STEPS: Please follow the steps below to collect stamp information for API model,
 
 	c) Required modules: AzureStack (v 1.2.11), AzureRM.Resources (v 4.4.1), AzureRM.Storage (v 1.0.5.4)
 
-	d) We are using a perticular Ubuntu image and should be added to PIR,
-	Sideload location details,
+	d) Ensure that following Ubuntu image is added to PIR from marketplace,
+	
     Publisher = "Canonical"
     Offer = "UbuntuServer"
     SKU = "16.04-LTS"
-    Version = "16.04.201711072"
-    ImageURI = "https://azurestacktemplate.blob.core.windows.net/azurestacktemplate-public-container/Ubuntu1604-201711072.vhd"
+    Version = "16.04.201801260"
     OSType = "Linux"
 
 	e) You also need to download Custom Script for Linux, 2.0.3 from the marketplace.
