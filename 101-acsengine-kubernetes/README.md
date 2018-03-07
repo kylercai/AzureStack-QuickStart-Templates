@@ -81,18 +81,24 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
 6) Generate the template (You would need to SSH into a Linux VM for following steps),
 
 	git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v093
+
 	cd acs-engine
+	
 	sudo tar -zxvf examples/azurestack/acs-engine.tgz
+	
 	sudo wget <$apiModelBlobPath from output of Step 4> --no-check-certificate
+	
 	sudo ./acs-engine generate azurestack.json
+	
 	cd _output/
 
 	This will generae a new folder containing your templates.
 
 7) Deploy the kubernetes template using,
 
-	"azuredeploy.parameters.json"
-	"azuredeploy.json"
+	azuredeploy.parameters.json
+
+	azuredeploy.json
 
 8) Try a few applications by installing Helm
 
