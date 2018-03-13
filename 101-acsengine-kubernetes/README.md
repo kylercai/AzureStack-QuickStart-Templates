@@ -100,7 +100,13 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
 
 	azuredeploy.json
 
-8) Try a few applications by installing Helm
+8) If you need to deploy ANOTHER deployment, modify namingSuffix (so that you can have a unique DNS name) and repeat all the above steps.
 
-9) If you need to deploy another deployment, modify namingSuffix and repeat all the steps.
+9) Try a few applications by installing Helm
+
+Helm Installation: https://github.com/kubernetes/helm/blob/master/docs/install.md#from-script
+
+Wordpress Installation (using Helm): helm install stable/wordpress
+
+
 
