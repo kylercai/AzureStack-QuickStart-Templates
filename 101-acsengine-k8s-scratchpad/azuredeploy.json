@@ -1074,7 +1074,7 @@
       "type": "int"
     },
     "nameSuffix": {
-      "defaultValue": "27723780",
+      "defaultValue": "42275425",
       "metadata": {
         "description": "A string hash of the master DNS name to uniquely identify the cluster."
       },
@@ -1935,7 +1935,6 @@
       "location": "[variables('location')]",
       "name": "[concat(variables('agentpool1VMNamePrefix'), 'nic-', copyIndex(variables('agentpool1Offset')))]",
       "properties": {
-        "enableIPForwarding": true,
         "ipConfigurations": [
           {
             "name": "ipconfig1",
@@ -2293,7 +2292,6 @@
       "location": "[variables('location')]",
       "name": "[concat(variables('masterVMNamePrefix'), 'nic-', copyIndex(variables('masterOffset')))]",
       "properties": {
-        "enableIPForwarding": true,
         "ipConfigurations": [
           {
             "name": "ipconfig1",
