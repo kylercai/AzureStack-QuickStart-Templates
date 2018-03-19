@@ -73,6 +73,10 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
 	It will upload the API model to a storage account and provide the link to API model. For example: 
 	$apiModel.apiModelBlobPath: https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281/azurestack.json                                                                                            
 
+	$ErcsComputerName is Emergency Console IP address
+	$CloudAdminCredential PSCredentials to talk with Emergency Console.
+	$ServiceAdminCredential PSCredentials to be able to create applications in Azure AAD corresponding to this AzureStack deployment.
+
 5) Ensuring that the service principal has access to the subcription.
 
    Assign-AcseServicePrincipal -TenantArmEndpoint $tenantArmEndpoint -AadTenantId $aadTenantId -TenantAdminCredential $tenantAdminCredential -TenantSubscriptionId $tenantSubscriptionId -ApplicationId $spnApplicationId 
