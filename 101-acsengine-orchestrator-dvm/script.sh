@@ -113,7 +113,7 @@ REGION=$(jq '.properties.cloudProfile.location' $FILE_NAME | tr -d \")
 SPNCLIENTID=$(jq '.properties.servicePrincipalProfile.clientId' $FILE_NAME | tr -d \")
 SPNSECRET=$(jq '.properties.servicePrincipalProfile.secret' $FILE_NAME | tr -d \")
 
-ENVIRONMENT_NAME=AzureStackUser
+ENVIRONMENT_NAME=AzureStackCloud
 echo 'Register to the cloud.'
 az cloud register \
   --name $ENVIRONMENT_NAME \
@@ -134,6 +134,9 @@ az login \
 
 az account set --subscription $TENANT_SUBSCRIPTION_ID
 
+MYDIR=$PWD
+echo "Current directory is: $MYDIR"
+
 echo "Generate and Deploy the template using the API model."
 sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPNCLIENTID --client-secret SPNSECRET --auth-method client_secret --api-model $FILE_NAME
 
@@ -148,11 +151,7 @@ export AZURE_STORAGE_ACCOUNT=$AZS_SA_NAME
 echo "AZURE_STORAGE_CONNECTION_STRING: $AZURE_STORAGE_CONNECTION_STRING"
 echo "AZURE_STORAGE_ACCOUNT: $AZURE_STORAGE_ACCOUNT"
 
-MYDIR=$PWD
-echo "Current directory is: $MYDIR"
-
 echo "Uploading templates to the storage account: $AZURE_STORAGE_ACCOUNT, Container: $AZS_SA_CONTAINER_NAME"
-
 az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
   --name "$MASTER_DNS_PREFIX/azuredeploy.json" \
