@@ -137,7 +137,7 @@ az account set --subscription $TENANT_SUBSCRIPTION_ID
 MYDIR=$PWD
 echo "Current directory is: $MYDIR"
 
-echo "Generate and Deploy the template using the API model."
+echo "Generate and Deploy the template using the API model in resource group $MASTER_DNS_PREFIX."
 sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPNCLIENTID --client-secret $SPNSECRET --auth-method client_secret --api-model $FILE_NAME
 
 echo "Accessing the generated templates."
@@ -151,7 +151,7 @@ export AZURE_STORAGE_ACCOUNT=$AZS_SA_NAME
 echo "AZURE_STORAGE_CONNECTION_STRING: $AZURE_STORAGE_CONNECTION_STRING"
 echo "AZURE_STORAGE_ACCOUNT: $AZURE_STORAGE_ACCOUNT"
 
-echo "Uploading templates to the storage account: $AZURE_STORAGE_ACCOUNT, Container: $AZS_SA_CONTAINER_NAME"
+echo "Uploading templates to the storage account: $AZURE_STORAGE_ACCOUNT, Container: $AZS_SA_CONTAINER_NAME from _output/$MASTER_DNS_PREFIX"
 az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
   --name "$MASTER_DNS_PREFIX/azuredeploy.json" \
