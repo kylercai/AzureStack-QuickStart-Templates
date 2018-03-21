@@ -155,12 +155,12 @@ echo "Uploading templates to the storage account: $AZURE_STORAGE_ACCOUNT, Contai
 az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
   --name "$MASTER_DNS_PREFIX/azuredeploy.json" \
-  --file "$MYDIR/$MASTER_DNS_PREFIX/azuredeploy.json"
+  --file "$MYDIR/_output/$MASTER_DNS_PREFIX/azuredeploy.json"
 
 az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
   --name "$MASTER_DNS_PREFIX/azuredeploy.parameters.json" \
-  --file "$MYDIR/$MASTER_DNS_PREFIX/azuredeploy.parameters.json"
+  --file "$MYDIR/_output/$MASTER_DNS_PREFIX/azuredeploy.parameters.json"
 
 echo "Ending test for acsengine-orchestrator-dvm."
 
