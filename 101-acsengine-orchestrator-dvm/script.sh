@@ -138,7 +138,7 @@ MYDIR=$PWD
 echo "Current directory is: $MYDIR"
 
 echo "Generate and Deploy the template using the API model."
-sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPNCLIENTID --client-secret SPNSECRET --auth-method client_secret --api-model $FILE_NAME
+sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPNCLIENTID --client-secret $SPNSECRET --auth-method client_secret --api-model $FILE_NAME
 
 echo "Accessing the generated templates."
 sudo chmod 777 -R _output/
@@ -161,7 +161,6 @@ az storage blob upload \
   --container-name $AZS_SA_CONTAINER_NAME \
   --name "$MASTER_DNS_PREFIX/azuredeploy.parameters.json" \
   --file "$MYDIR/$MASTER_DNS_PREFIX/azuredeploy.parameters.json"
-
 
 echo "Ending test for acsengine-orchestrator-dvm."
 
