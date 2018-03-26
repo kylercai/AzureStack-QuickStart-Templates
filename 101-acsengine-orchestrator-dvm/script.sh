@@ -54,7 +54,7 @@ sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCe
 update-ca-certificates
 
 echo "Clone the ACS-Engine repo"
-git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
+git clone https://github.com/msazurestackworkloads/acs-engine -b deploy-v093
 cd acs-engine
 
 if [ $BUILD_ACS_ENGINE == "True" ]
