@@ -7,13 +7,13 @@ https://github.com/msazurestackworkloads/acs-engine/blob/master/docs/kubernetes.
 We have modified acs-engine to work with AzureStack. 
 Here are some important links:
 1) Modifed ACS-Engine repo: 
-	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v093
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140
 
 2) Linux binary: 
-	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v093/examples/azurestack/acs-engine.tgz
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/acs-engine.tgz
 
 3) Example of working JSON (API model): 
-	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v093/examples/azurestack/azurestack.json
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/azurestack.json
  
 
 ================================================================================
@@ -45,9 +45,9 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
 
 3) Download the following two file on your developer box (currently only avaiable for Windows) and import the module AzureStack.AcsEngine
 
-   https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes/AzureStack.AcsEngine.psm1
+   https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-1804/AzureStack.AcsEngine.psm1
 
-   https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes/azurestack-default.json
+   https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-1804/azurestack-default.json
 
    Import-Module E:\Data\Fundamentals\Kubernetes\AzureStack.AcsEngine.psm1 -Force
 
@@ -82,27 +82,36 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
    Assign-AcseServicePrincipal -TenantArmEndpoint $tenantArmEndpoint -AadTenantId $aadTenantId -TenantAdminCredential $tenantAdminCredential -TenantSubscriptionId $tenantSubscriptionId -ApplicationId $spnApplicationId 
 
 
-6) Generate the template (You would need to SSH into a Linux VM for following steps),
+6) Clone the repo (You would need to SSH into a Linux VM for following steps),
 
-	git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v093
+	git clone https://github.com/msazurestackworkloads/acs-engine -b deploy-v093
 
 	cd acs-engine
 	
 	sudo tar -zxvf examples/azurestack/acs-engine.tgz
 	
 	sudo wget <$apiModelBlobPath from output of Step 4> --no-check-certificate
+
+7a) Generate the template (You would need to SSH into a Linux VM for following steps),
 	
-	sudo ./acs-engine generate azurestack.json
+	sudo ./bin/acs-engine generate azurestack.json
 	
 	cd _output/
 
 	This will generae a new folder containing your templates.
 
-7) Deploy the kubernetes template using,
+	Deploy the kubernetes template using,
 
 	azuredeploy.parameters.json
 
 	azuredeploy.json
+
+7b) Generate and deploy the templates together (need to use a Linux VM created in AzureStack)
+	
+	sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
+	update-ca-certificates
+
+	sudo ./bin/acs-engine deploy --resource-group $masterDnsPrefix --azure-env AzureStackCloud --location local --subscription-id $tenantSubscriptionId --client-id <servicePrincipalProfile clientId from azurestack.json> --client-secret <servicePrincipalProfile secret from azurestack.json> --auth-method client_secret --api-model azurestack.json
 
 8) If you need to deploy ANOTHER deployment, modify namingSuffix (so that you can have a unique DNS name) and repeat all the above steps.
 
