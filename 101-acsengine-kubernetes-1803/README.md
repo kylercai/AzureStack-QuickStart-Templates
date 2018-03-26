@@ -1,0 +1,125 @@
+The Azure Container Service Engine (acs-engine) generates ARM (Azure Resource Manager) templates for Docker enabled clusters on Microsoft Azure with your choice of DC/OS, Kubernetes, Swarm Mode, or Swarm orchestrators.
+
+# To learn more about generating templates using ACS-Engine refer to ACS Engine: 
+https://github.com/msazurestackworkloads/acs-engine/blob/master/docs/kubernetes.md
+
+
+We have modified acs-engine to work with AzureStack. 
+Here are some important links:
+1) Modifed ACS-Engine repo: 
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140
+
+2) Linux binary: 
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/acs-engine.tgz
+
+3) Example of working JSON (API model): 
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/azurestack.json
+ 
+
+================================================================================
+STEPS: Please follow the steps below try Kubernetes: Collect stamp information for API model, generate and deploy the template.
+
+1) Prerequistes:
+
+	a) You need to be able to create SPN (applications) in your tenant AAD (in Azure portal) for Kubernetes deployment. 
+	   Following can be used to check if you have appropriate permissions:
+	   https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#check-azure-active-directory-permissions
+
+	b) SSH key is required to login to the Linux VMs.
+	   https://github.com/msazurestackworkloads/acs-engine/blob/master/docs/ssh.md#ssh-key-generation
+
+	c) Required modules: AzureStack (v 1.2.11), AzureRM.Resources (v 4.4.1), AzureRM.Storage (v 1.0.5.4). Most likely you already have these if you have used any AzureRm cmdlets.
+
+	d) Ensure that following Ubuntu image is added from marketplace to PIR,
+    Publisher = "Canonical"
+    Offer = "UbuntuServer"
+    SKU = "16.04-LTS"
+    Version = "16.04.201801260"
+    OSType = "Linux"
+
+	e) You also need to download Custom Script for Linux, 2.0.3 from the marketplace.
+
+2) Ensure that you have a valid subscription in your AzureStack tenant portal (enough public IP quota to try few applications).
+
+   $tenantSubscriptionId = "4a4be501-4cb1-431b-a55d-b700ccfc3edd"
+
+3) Download the following two file on your developer box (currently only avaiable for Windows) and import the module AzureStack.AcsEngine
+
+   https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-1804/AzureStack.AcsEngine.psm1
+
+   https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-1804/azurestack-default.json
+
+   Import-Module E:\Data\Fundamentals\Kubernetes\AzureStack.AcsEngine.psm1 -Force
+
+4) Call the method to prepare API model,
+
+	Highly recommend using naming suffix to keep unique DNS in shared environments.
+
+	$namingSuffix = 10000..99999 | Get-Random
+
+	$masterDnsPrefix = "k8s-" + $namingSuffix
+
+	$apiModelParameters = @{'ErcsComputerName' = "10.193.130.224";
+							'CloudAdminCredential' = $cloudAdminCredential;
+							'ServiceAdminCredential' = $serviceAdminCredential;
+							'TenantAdminCredential' = $tenantAdminCredential;
+							'TenantSubscriptionId' = $tenantSubscriptionId;
+							'MasterDnsPrefix' = $masterDnsPrefix;
+							'LinuxVmSshKey' = $acsSshKey;
+							'NamingSuffix' = $namingSuffix;}
+
+	$apiModel = Prepare-AcseApiModel @apiModelParameters
+
+	It will upload the API model to a storage account and provide the link to API model. For example: 
+	$apiModel.apiModelBlobPath: https://k8ssa62281.blob.redmond.azurestack.corp.microsoft.com/k8ssaci62281/azurestack.json                                                                                            
+
+	$ErcsComputerName is Emergency Console IP address
+	$CloudAdminCredential PSCredentials to talk with Emergency Console.
+	$ServiceAdminCredential PSCredentials to be able to create applications in Azure AAD corresponding to this AzureStack deployment.
+
+5) Ensuring that the service principal has access to the subcription.
+
+   Assign-AcseServicePrincipal -TenantArmEndpoint $tenantArmEndpoint -AadTenantId $aadTenantId -TenantAdminCredential $tenantAdminCredential -TenantSubscriptionId $tenantSubscriptionId -ApplicationId $spnApplicationId 
+
+
+6) Clone the repo (You would need to SSH into a Linux VM for following steps),
+
+	git clone https://github.com/msazurestackworkloads/acs-engine -b deploy-v093
+
+	cd acs-engine
+	
+	sudo tar -zxvf examples/azurestack/acs-engine.tgz
+	
+	sudo wget <$apiModelBlobPath from output of Step 4> --no-check-certificate
+
+7a) Generate the template (You would need to SSH into a Linux VM for following steps),
+	
+	sudo ./bin/acs-engine generate azurestack.json
+	
+	cd _output/
+
+	This will generae a new folder containing your templates.
+
+	Deploy the kubernetes template using,
+
+	azuredeploy.parameters.json
+
+	azuredeploy.json
+
+7b) Generate and deploy the templates together (need to use a Linux VM created in AzureStack)
+	
+	sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
+	update-ca-certificates
+
+	sudo ./bin/acs-engine deploy --resource-group $masterDnsPrefix --azure-env AzureStackCloud --location local --subscription-id $tenantSubscriptionId --client-id <servicePrincipalProfile clientId from azurestack.json> --client-secret <servicePrincipalProfile secret from azurestack.json> --auth-method client_secret --api-model azurestack.json
+
+8) If you need to deploy ANOTHER deployment, modify namingSuffix (so that you can have a unique DNS name) and repeat all the above steps.
+
+9) Try a few applications by installing Helm
+
+Helm Installation: https://github.com/kubernetes/helm/blob/master/docs/install.md#from-script
+
+Wordpress Installation (using Helm): helm install stable/wordpress
+
+
+
