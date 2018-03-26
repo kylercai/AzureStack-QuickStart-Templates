@@ -52,25 +52,29 @@ Get-Date
 
 # Deploy in multi-node Azure Stack #######################################################################################################
 
-Import-Module C:\CloudDeployment\AzureStack.Connect.psm1
+Get-Date
+Import-Module C:\Kubernetes\AzureStack.Connect.psm1
 
-Add-AzureRmEnvironment -Name "AzureStackUser" -ArmEndpoint "https://management.redmond.ext-u15e0303.masd.stbtest.microsoft.com"
-$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci13.onmicrosoft.com" -EnvironmentName AzureStackUser
-$TenantID
+Add-AzureRmEnvironment -Name "AzureStackUser" -ArmEndpoint "https://management.redmond.ext-n42r0703.masd.stbtest.microsoft.com"
+$TenantID = Get-AzsDirectoryTenantId -AADTenantName "azurestackci10.onmicrosoft.com" -EnvironmentName AzureStackUser
+$TenantID 
 $UserName='tenantadmin1@msazurestack.onmicrosoft.com'
 $Password='User@123'| ConvertTo-SecureString -Force -AsPlainText
 $Credential= New-Object PSCredential($UserName,$Password)
+Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential
+Select-AzureRmSubscription -SubscriptionId ab03f48d-08e1-4353-8a37-d02617129f9e
 
-Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential 
-Select-AzureRmSubscription -SubscriptionId 3c779415-1821-43ad-9732-dae8fa115229
-
-$resourceGroupName = "radhikgu-k8s1d"
+$resourceGroupName = "k8s-67500"
 $resourceGroupDeploymentName = "$($resourceGroupName)Deployment"
+$resourceGroupOutputName = "$($resourceGroupName)-out.txt"
 
 # Create a resource group:
 New-AzureRmResourceGroup -Name $resourceGroupName -Location "redmond"
 
 # Deploy template to resource group: Deploy using a local template and parameter file
-New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName -ResourceGroupName $resourceGroupName `
-                                    -TemplateFile "C:\Kubernetes\azuredeploy_multi.json" `
-                                    -TemplateParameterFile "C:\Kubernetes\azuredeploy.parameters_multi.json" -Verbose
+$key = New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName -ResourceGroupName $resourceGroupName `
+                                           -TemplateFile "C:\Kubernetes\azuredeploy.json" `
+                                           -TemplateParameterFile "C:\Kubernetes\azuredeploy.parameters.json" -Verbose
+Write-Output $key
+$key.OutputsString > $resourceGroupOutputName
+Get-Date
