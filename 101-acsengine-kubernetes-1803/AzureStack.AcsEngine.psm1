@@ -250,7 +250,10 @@ function Prepare-AcseApiModel
 		[string]$NamingSuffix,
 
 		[Parameter(Mandatory = $false)]
-		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:1803.1"
+		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:20180321.1.1.7.14",
+
+		[Parameter(Mandatory = $false)]
+		[string]$HyperCubeImageVersion = "1.7"
     )
 
     # Retrieve Stamp information.
@@ -291,6 +294,7 @@ function Prepare-AcseApiModel
 	Write-Verbose "Preparing the API model" -Verbose
     $apiModel = ConvertFrom-Json (Get-Content -Path  "$PSScriptRoot\azurestack-default.json" -Raw -ErrorAction Stop)
 	$apiModel.properties.orchestratorProfile.kubernetesConfig.CustomHyperkubeImage = $HyperCubeImage
+	$apiModel.properties.orchestratorProfile.orchestratorRelease = $HyperCubeImageVersion
 
 	$apiModel.properties.masterProfile.dnsPrefix = $MasterDnsPrefix
 	
