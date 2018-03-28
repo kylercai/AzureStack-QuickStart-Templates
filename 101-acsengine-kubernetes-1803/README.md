@@ -34,7 +34,7 @@ STEPS: Please follow the steps below try Kubernetes: Collect stamp information f
     Publisher = "Canonical"
     Offer = "UbuntuServer"
     SKU = "16.04-LTS"
-    Version = "16.04.201801260"
+    Version = "16.04.201802220"
     OSType = "Linux"
 
 	e) You also need to download Custom Script for Linux, 2.0.3 from the marketplace.
