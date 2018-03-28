@@ -37,7 +37,7 @@ echo "Install Python 3.5"
 sudo apt-get install python3.5 -y
 
 echo "Install Python PIP."
-sudo apt install python-pip -y
+sudo apt-get install python-pip -y
 
 echo "Upgrading Python PIP."
 pip install --upgrade pip
@@ -68,7 +68,7 @@ then
     sudo apt-get install docker-ce -y
 
     echo "Install Make."
-    sudo apt install make -y
+    sudo apt-get install make -y
 
     echo "Build developer environment."
     sudo make devenv
@@ -93,10 +93,10 @@ echo "Download the API model."
 sudo wget $API_MODEL_PATH --no-check-certificate
 
 echo "Installing pax for string manipulation."
-sudo apt install pax -y
+sudo apt-get install pax -y
 
 echo "Installing jq for JSON manipulation."
-apt install jq -y
+apt-get install jq -y
 
 FILE_NAME=$(basename $API_MODEL_PATH)
 echo "File name is: $FILE_NAME"
