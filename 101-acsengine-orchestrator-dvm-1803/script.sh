@@ -26,6 +26,8 @@ echo "TENANT_USERNAME: $TENANT_USERNAME"
 echo "AZS_SA_NAME: $AZS_SA_NAME"
 echo "AZS_SA_RESOURCE_GROUP: $AZS_SA_RESOURCE_GROUP"
 
+sudo uname -a
+
 echo "Update the system."
 sudo apt-get update -y
 
