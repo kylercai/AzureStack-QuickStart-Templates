@@ -13,7 +13,7 @@ Here are some important links:
 	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/acs-engine.tgz
 
 3) Example of working JSON (API model): 
-	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/azurestack.json
+	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/azurestack-kubernetes1.7.json
  
 
 ================================================================================
