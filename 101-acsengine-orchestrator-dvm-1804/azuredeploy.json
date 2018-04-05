@@ -65,6 +65,17 @@
         "description": "Tenant Password."
       }
     },
+    "kubernetesAzureCloudProviderVersion": {
+      "type": "string",
+      "defaultValue": "1.7",
+      "allowedValues": [
+        "1.7",
+        "1.8"
+      ],
+      "metadata": {
+        "description": "This is the version for the kubernetes Azure cloud provider. We would use a custom kubernetes build specifically for AzureStack for each version."
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -96,7 +107,7 @@
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModelBlobPath'), ' ', parameters('tenantId'), ' ', parameters('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('existingStorageAccountName'), ' ', parameters('existingStorageAccountResourceGroup'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('apiModelBlobPath'), ' ', parameters('tenantId'), ' ', parameters('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('existingStorageAccountName'), ' ', parameters('existingStorageAccountResourceGroup'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'))]"
   },
   "resources": [
     {

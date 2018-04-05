@@ -17,6 +17,8 @@ TENANT_USERNAME=${5}
 TENANT_PASSWORD=${6}
 AZS_SA_NAME=${7}
 AZS_SA_RESOURCE_GROUP=${8}
+K8S_AZURE_CLOUDPROVIDER_VERSION=${9}
+REGION_NAME=${10}
 
 echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
 echo "API_MODEL_PATH: $API_MODEL_PATH"
@@ -25,27 +27,23 @@ echo "TENANT_SUBSCRIPTION_ID: $TENANT_SUBSCRIPTION_ID"
 echo "TENANT_USERNAME: $TENANT_USERNAME"
 echo "AZS_SA_NAME: $AZS_SA_NAME"
 echo "AZS_SA_RESOURCE_GROUP: $AZS_SA_RESOURCE_GROUP"
+echo "K8S_AZURE_CLOUDPROVIDER_VERSION: $K8S_AZURE_CLOUDPROVIDER_VERSION"
+echo "REGION_NAME: $REGION_NAME"
 
+echo 'Printing the system information'
 sudo uname -a
 
 echo "Update the system."
 sudo apt-get update -y
 
 echo "Install AzureCLI."
-echo "Update prerequiste for AzureCLI."
-sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
-
-echo "Install Python 3.5"
-sudo apt-get install python3.5 -y
-
-echo "Install Python PIP."
-sudo apt-get install python-pip -y
-
-echo "Upgrading Python PIP."
-pip install --upgrade pip
-
-echo "Install AzureCLI package."
-sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
+# See: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest#install-on-debianubuntu-with-apt-get
+apt-get update -y
+apt-get install apt-transport-https -y
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
+apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+apt-get update -y
+apt-get install azure-cli -y
 
 echo 'Import the root CA certificate to python store.'
 PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
@@ -54,6 +52,10 @@ sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
 update-ca-certificates
+
+echo 'Retrieve the AzureStack root CA certificate thumbprint'
+THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -noout | cut -d'=' -f 2 | tr -d :)
+echo 'Thumbprint for AzureStack root CA certificate:' $THUMBPRINT
 
 echo "Clone the ACS-Engine repo"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
@@ -119,14 +121,22 @@ ENVIRONMENT_NAME=AzureStackCloud
 echo 'Register to the cloud.'
 az cloud register \
   --name $ENVIRONMENT_NAME \
-  --endpoint-resource-manager $TENANT_ENDPOINT \
-  --suffix-storage-endpoint $STORAGE_ENDPOINT_SUFFIX \
-  --suffix-keyvault-dns $KEYVAULT_DNS_SUFFIX \
-  --endpoint-active-directory-graph-resource-id $GRAPH_ENDPOINT \
-  --endpoint-vm-image-alias-doc 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/master/arm-compute/quickstart-templates/aliases.json' \
-  --profile 2017-03-09-profile
+  --endpoint-resource-manager $TENANT_ENDPOINT
 
 az cloud set --name $ENVIRONMENT_NAME
+
+# Override the default file with the correct values.
+sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
+if [ ! azurestack.json ]
+then
+  echo "File does not exist. Exiting..."
+  exit 1
+fi
+
+sudo cat azurestack.json | jq --arg THUMBPRINT $THUMBPRINT '.properties.cloudProfile.resourceManagerRootCertificate = $THUMBPRINT' | \
+jq --arg REGION_NAME $REGION_NAME '.properties.cloudProfile.location = $REGION_NAME' > azurestack_temp.json
+
+sudo mv azurestack_temp.json azurestack.json
 
 echo 'Login to the cloud.'
 az login \

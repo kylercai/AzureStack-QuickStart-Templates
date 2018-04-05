@@ -247,13 +247,7 @@ function Prepare-AcseApiModel
 		[string]$LinuxVmSshKey,
 
 		[Parameter(Mandatory = $false)]
-		[string]$NamingSuffix,
-
-		[Parameter(Mandatory = $false)]
-		[string]$HyperCubeImage = "msazurestackdocker/kubernetes:20180321.1.1.7.14",
-
-		[Parameter(Mandatory = $false)]
-		[string]$HyperCubeImageVersion = "1.7"
+		[string]$NamingSuffix
     )
 
     # Retrieve Stamp information.
@@ -267,7 +261,6 @@ function Prepare-AcseApiModel
         throw "Creating Kubernetes API model is only supported for AAD type AzureStack System."
     }
 
-    $aadTenantName = $stampInfo.AADTenantName
     $aadTenantId = $stampInfo.AADTenantID
     $regionName = $stampInfo.RegionName
     $tenantArmEndpoint = $stampInfo.TenantExternalEndpoints.TenantResourceManager.TrimEnd("/")
@@ -276,10 +269,6 @@ function Prepare-AcseApiModel
 	$resourceManagerVMDNSSuffix = $stampInfo.ExternalDomainFQDN
 	$array = $resourceManagerVMDNSSuffix.Split(".")
 	$resourceManagerVMDNSSuffix = 'cloudapp.'+ ($array[1..($array.Length -1)] -join ".")
-
-    Write-Verbose "Retrieving Root CA certificated from: $tenantMetadataEndpointUrl" -Verbose
-    $certificateThumbprint = Get-AcseRemoteSSLCertificate -Url $tenantMetadataEndpointUrl
-	Write-Verbose "Retrieved certificate thumbprint is: $certificateThumbprint" -Verbose
 
     Write-Verbose "TenantId: $aadTenantId, TenantArmEndpoint: $tenantArmEndpoint" -Verbose
 
@@ -293,8 +282,6 @@ function Prepare-AcseApiModel
     # Prepare the API model based on the current AzureStack environment.
 	Write-Verbose "Preparing the API model" -Verbose
     $apiModel = ConvertFrom-Json (Get-Content -Path  "$PSScriptRoot\azurestack-default.json" -Raw -ErrorAction Stop)
-	$apiModel.properties.orchestratorProfile.kubernetesConfig.CustomHyperkubeImage = $HyperCubeImage
-	$apiModel.properties.orchestratorProfile.orchestratorRelease = $HyperCubeImageVersion
 
 	$apiModel.properties.masterProfile.dnsPrefix = $MasterDnsPrefix
 	
@@ -305,7 +292,6 @@ function Prepare-AcseApiModel
     $apiModel.properties.cloudProfile.storageEndpointSuffix = $environment.StorageEndpointSuffix
     $apiModel.properties.cloudProfile.keyVaultDNSSuffix = $environment.AzureKeyVaultDnsSuffix
 	$apiModel.properties.cloudProfile.resourceManagerVMDNSSuffix = $resourceManagerVMDNSSuffix
-    $apiModel.properties.cloudProfile.resourceManagerRootCertificate = $certificateThumbprint
     $apiModel.properties.cloudProfile.location = $regionName
 
 	$apiModel.properties.linuxProfile.ssh.publicKeys[0].keyData = $LinuxVmSshKey

@@ -28,6 +28,9 @@
       },
       "existingStorageAccountResourceGroup": {
         "value": ""
+      },
+      "kubernetesAzureCloudProviderVersion": {
+        "value": "1.7"
       }
   }
 }
