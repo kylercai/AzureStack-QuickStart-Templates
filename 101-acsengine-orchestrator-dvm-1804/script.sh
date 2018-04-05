@@ -126,7 +126,7 @@ az cloud register \
 az cloud set --name $ENVIRONMENT_NAME
 
 # Override the default file with the correct values.
-sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
+# sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
 if [ ! azurestack.json ]
 then
   echo "File does not exist. Exiting..."
