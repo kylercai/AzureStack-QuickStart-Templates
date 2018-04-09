@@ -263,12 +263,11 @@ function Get-AcseStampInformation
     $spn = New-AcseServicePrincipal -AadTenantId $aadTenantId -ServiceAdminCredential $ServiceAdminCredential
     Write-Verbose "Created new SPN ClientID: $($spn.applicationId), Secret: $($spn.password)" -Verbose
 	
-    $apiModel = @()
-	$apiModel.Add('tenantArmEndpoint', $tenantArmEndpoint);
-	$apiModel.Add('aadTenantId', $aadTenantId);
-	$apiModel.Add('fqdnEndpointSuffix', $fqdnEndpointSuffix);
-	$apiModel.Add('servicePrincipalClientId', $spn.applicationId);
-	$apiModel.Add('servicePrincipalClientSecret', $spn.password);
+	$result = @{'tenantArmEndpoint'= $tenantArmEndpoint;
+				'aadTenantId'= $aadTenantId;
+                'fqdnEndpointSuffix'= $fqdnEndpointSuffix;
+                'servicePrincipalClientId'= $spn.applicationId; 
+                'servicePrincipalClientSecret'= $spn.password}
 
-	$apiModel
+	$result
 }
