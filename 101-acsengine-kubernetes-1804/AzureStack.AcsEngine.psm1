@@ -221,7 +221,7 @@ function New-AcseStorageAccount
     $result
 }
 
-function Prepare-AcseApiModel
+function Get-AcseStampInformation
 {
     param
     (
@@ -232,22 +232,7 @@ function Prepare-AcseApiModel
 		[PSCredential]$CloudAdminCredential,
 
         [Parameter(Mandatory = $true)]
-		[PSCredential]$ServiceAdminCredential,
-
-		[Parameter(Mandatory = $true)]
-		[PSCredential]$TenantAdminCredential,
-
-		[Parameter(Mandatory = $true)]
-		[string]$TenantSubscriptionId,
-
-		[Parameter(Mandatory = $true)]
-		[string]$MasterDnsPrefix,
-
-		[Parameter(Mandatory = $true)]
-		[string]$LinuxVmSshKey,
-
-		[Parameter(Mandatory = $false)]
-		[string]$NamingSuffix
+		[PSCredential]$ServiceAdminCredential
     )
 
     # Retrieve Stamp information.
@@ -264,11 +249,10 @@ function Prepare-AcseApiModel
     $aadTenantId = $stampInfo.AADTenantID
     $regionName = $stampInfo.RegionName
     $tenantArmEndpoint = $stampInfo.TenantExternalEndpoints.TenantResourceManager.TrimEnd("/")
-    $tenantMetadataEndpointUrl = "$tenantArmEndpoint/metadata/endpoints?api-version=1.0"
     
-	$resourceManagerVMDNSSuffix = $stampInfo.ExternalDomainFQDN
-	$array = $resourceManagerVMDNSSuffix.Split(".")
-	$resourceManagerVMDNSSuffix = 'cloudapp.'+ ($array[1..($array.Length -1)] -join ".")
+	$fqdnEndpointSuffix = $stampInfo.ExternalDomainFQDN
+	$array = $fqdnEndpointSuffix.Split(".")
+	$fqdnEndpointSuffix = 'cloudapp.'+ ($array[1..($array.Length -1)] -join ".")
 
     Write-Verbose "TenantId: $aadTenantId, TenantArmEndpoint: $tenantArmEndpoint" -Verbose
 
@@ -278,42 +262,13 @@ function Prepare-AcseApiModel
     # Create service principal in AAD
     $spn = New-AcseServicePrincipal -AadTenantId $aadTenantId -ServiceAdminCredential $ServiceAdminCredential
     Write-Verbose "Created new SPN ClientID: $($spn.applicationId), Secret: $($spn.password)" -Verbose
-
-    # Prepare the API model based on the current AzureStack environment.
-	Write-Verbose "Preparing the API model" -Verbose
-    $apiModel = ConvertFrom-Json (Get-Content -Path  "$PSScriptRoot\azurestack-default.json" -Raw -ErrorAction Stop)
-
-	$apiModel.properties.masterProfile.dnsPrefix = $MasterDnsPrefix
 	
-    $apiModel.properties.cloudProfile.serviceManagementEndpoint = $environment.ActiveDirectoryServiceEndpointResourceId
-    $apiModel.properties.cloudProfile.resourceManagerEndpoint = $tenantArmEndpoint   
-    $apiModel.properties.cloudProfile.galleryEndpoint = $environment.GalleryUrl
-    $apiModel.properties.cloudProfile.keyVaultEndpoint = $environment.AzureKeyVaultServiceEndpointResourceId
-    $apiModel.properties.cloudProfile.storageEndpointSuffix = $environment.StorageEndpointSuffix
-    $apiModel.properties.cloudProfile.keyVaultDNSSuffix = $environment.AzureKeyVaultDnsSuffix
-	$apiModel.properties.cloudProfile.resourceManagerVMDNSSuffix = $resourceManagerVMDNSSuffix
-    $apiModel.properties.cloudProfile.location = $regionName
-
-	$apiModel.properties.linuxProfile.ssh.publicKeys[0].keyData = $LinuxVmSshKey
-
-    $apiModel.properties.servicePrincipalProfile.clientId = $spn.applicationId
-    $apiModel.properties.servicePrincipalProfile.secret = $spn.password
-
-	Write-Verbose "Placing the API model to local location." -Verbose
-	$localFilePathForApiModel = "$PSScriptRoot\azurestack.json"
-    $apiModel | ConvertTo-Json -Depth 100 | Out-File -FilePath $localFilePathForApiModel -Encoding ascii
-
-	$saParameters = @{'AadTenantId' = $aadTenantId;
-					'Location' = $regionName;
-					'TenantAdminCredential' = $TenantAdminCredential;
-					'TenantArmEndpoint' = $tenantArmEndpoint;
-					'TenantSubscriptionId' = $TenantSubscriptionId;
-					'LocalFilePath' = $localFilePathForApiModel;
-					'NamingSuffix' = $NamingSuffix }
-
-	Write-Verbose "Upload the locally created API model to a Storage Account." -Verbose
-	$apiModel = New-AcseStorageAccount @saParameters
-	$apiModel.Add('spnApplicationId', $spn.applicationId);
+    $apiModel = @()
+	$apiModel.Add('tenantArmEndpoint', $tenantArmEndpoint);
+	$apiModel.Add('aadTenantId', $aadTenantId);
+	$apiModel.Add('fqdnEndpointSuffix', $fqdnEndpointSuffix);
+	$apiModel.Add('servicePrincipalClientId', $spn.applicationId);
+	$apiModel.Add('servicePrincipalClientSecret', $spn.password);
 
 	$apiModel
 }
