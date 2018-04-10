@@ -57,6 +57,11 @@ apt-get install azure-cli -y
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
+echo "Install Python PIP."
+sudo apt-get install python-pip -y
+echo "Upgrading Python PIP."
+sudo pip install --upgrade pip
+sudo pip install certifi
 PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
 sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
 
