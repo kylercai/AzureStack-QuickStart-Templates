@@ -2,26 +2,11 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "adminUsername": {
+      "linuxAdminUsername": {
         "value": "azureuser"
       },
-      "adminPassword": {
-        "value": ""
-      },
-      "tenantEndpoint": {
-        "value": ""
-      },
-      "tenantId": {
-        "value": ""
-      },
-      "tenantSubscriptionId": {
-        "value": ""
-      },
-      "tenantUsername": {
-        "value": ""
-      },
-      "tenantPassword": {
-        "value": ""
+      "agentPoolProfileCount": {
+        "value": "2"
       },
       "kubernetesAzureCloudProviderVersion": {
         "value": "1.7"
