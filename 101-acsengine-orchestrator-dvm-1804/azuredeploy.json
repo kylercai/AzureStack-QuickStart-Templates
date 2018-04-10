@@ -2,19 +2,18 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "adminUsername": {
+    "linuxAdminUsername": {
       "type": "string",
+      "defaultValue": "azureuser",
       "metadata": {
-        "description": "Username for the deployment virtual machine."
-      },
-      "defaultValue": "azureuser"
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "defaultValue": "[concat('Subscription#',substring(resourcegroup().id,15,36))]",
-      "metadata": {
-        "description": "Password for the deployment virtual machine. Default value is 'Subscription#<subscription id>'"
+        "description": "User name for the Linux Virtual Machines (SSH or Password) that are part of the orchestrator (e.g. Kubernetes)."
       }
+    },
+    "sshPublicKey": {
+      "metadata": {
+        "description": "SSH public key used for auth to all Linux machines created as part of the orchestrator (e.g. Kubernetes)."
+      },
+      "type": "string"
     },
     "tenantArmEndpoint": {
       "type": "string",
@@ -28,16 +27,10 @@
         "description": "Tenant Id for the tenant."
       }
     },
-    "tenantSubscriptionId": {
-      "type": "string",
-      "metadata": {
-        "description": "Tenant subcription Id for the subscription that will be used to create the resource group for the orchestrator (e.g. Kubernetes)."
-      }
-    },
     "tenantUsername": {
       "type": "securestring",
       "metadata": {
-        "description": "Tenant Username. We need to connect to ARM tenant endpoint to create the orchestrator (e.g. Kubernetes). This is username for the tenant."
+        "description": "This is username for the tenant. We need to connect to ARM tenant endpoint to create the Kubernetes cluster e.g. tenantadmin1@msazurestack.onmicrosoft.com "
       }
     },
     "tenantPassword": {
@@ -51,18 +44,6 @@
       "metadata": {
         "description": "Endpoint of FQDN. e.g. cloudapp.azurestack.external (one-node), cloudapp.ext-n42r0703.masd.stbtest.microsoft.com (multi-node)."
       }
-    },
-    "linuxProfileAdminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "User name for the Linux Virtual Machines (SSH or Password) that are part of the orchestrator (e.g. Kubernetes)."
-      }
-    },
-    "linuxProfileSshPublicKey": {
-      "metadata": {
-        "description": "SSH public key used for auth to all Linux machines created as part of the orchestrator (e.g. Kubernetes)."
-      },
-      "type": "string"
     },
     "masterProfileDnsPrefix": {
       "type": "string",
@@ -87,11 +68,27 @@
         13,
         14,
         15,
-        16
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
       ],
       "defaultValue": 2,
       "metadata": {
-        "description": "The number of agents for the orchestrator cluster. This value can be from 1 to 16"
+        "description": "The number of agents for the orchestrator cluster. This value can be from 1 to 32"
       },
       "type": "int"
     },
@@ -155,8 +152,10 @@
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
+    "sshKeyPath": "[concat('/home/',variables('linuxAdminUsername'),'/.ssh/authorized_keys')]",
+    "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', parameters('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('fqdnEndpointSuffix'), ' ', parameters('linuxProfileAdminUsername'), ' ', parameters('linuxProfileSshPublicKey'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', parameters('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('fqdnEndpointSuffix'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'))]"
   },
   "resources": [
     {
@@ -270,8 +269,18 @@
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminUsername": "[parameters('linuxAdminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "keyData": "[parameters('sshPublicKey')]",
+                  "path": "[variables('sshKeyPath')]"
+                }
+              ]
+            }
+          }
         },
         "storageProfile": {
           "imageReference": {
