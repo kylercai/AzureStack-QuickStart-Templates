@@ -154,16 +154,21 @@ ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDire
 ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
 
 echo 'Override the default file with the correct values in the API model.'
-if [ ! examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json ] then
-  echo "File azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json does not exist. Exiting..."
-  exit 1
+
+if [ -f "examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json" ]
+then
+	echo "Found azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json."
 else
-  echo "Found azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json."
+	echo "File azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json does not exist. Exiting..."
+	exit 1
 fi
 
 echo "Copied the default file API model."
 sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
-if [ ! azurestack.json ] then
+if [ -f "azurestack.json" ] 
+then
+	echo "Found azurestack.json."
+else
   echo "File azurestack.json does not exist in $PWD. Exiting..."
   exit 1
 fi
