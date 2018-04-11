@@ -15,14 +15,13 @@ TENANT_ID=${3}
 TENANT_SUBSCRIPTION_ID=${4}
 TENANT_USERNAME=${5}
 TENANT_PASSWORD=${6}
-FQDN_ENDPOINT_SUFFIX=${7}
-ADMIN_USERNAME=${8}
-MASTER_DNS_PREFIX=${9}
-AGENT_COUNT=${10}
-SPN_CLIENT_ID=${11}
-SPN_CLIENT_SECRET=${12}
-K8S_AZURE_CLOUDPROVIDER_VERSION=${13}
-REGION_NAME=${14}
+ADMIN_USERNAME=${7}
+MASTER_DNS_PREFIX=${8}
+AGENT_COUNT=${9}
+SPN_CLIENT_ID=${10}
+SPN_CLIENT_SECRET=${11}
+K8S_AZURE_CLOUDPROVIDER_VERSION=${12}
+REGION_NAME=${13}
 SSH_PUBLICKEY='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDvbLKDItnLMl4boe4/7Sg7azBznr1k/MCpjYroJDPxOn9m4RMAtvE7iQV8P/oqGY6DjyS7kS8ShMMRaedZ/X1xcHVOTmSihWk0hdgWfyyhHJHo5cKnnZCJYH0U4REf5ofwQlP+N+7fN2xNkQaw/qjYUH8nNpRp7z9nLk1MxAD35jACGKjth417oEM7kr86qePkdy18m+YEA8713UbUWXnqHduOsXdG+QfeHN4P3G11fHXs6yYpzf/Xmi/U6KN2fv8Q4w/5JrRmLOB++a1UYdhoQYkexuLpv53PGBqJpKrJMmv7v1ZsXV8WR7LFLlkzzbrnzICts3dr3S2FMVAAdproCG5CnwHK0kocxXDBRnicgW0ymyfFGzNtr3hXgvP7AmZWYE013/5P2068lqwU8RGQKnDE1ydIcZ58U3IkAWyswOGYML9NbbZMEV1cdBBBi8Gu6uy/3sd+vnfciTasYNF70z1qWKCawWWOEwit9mKEANh677M/dfzt9yJABRhQmDNKjxI0TumDYoCXMEZ7czHYmhKue1tBAJbgDUN23lr/xS7YT3feoVnGovazDUI+SOdrIsZXPIUlN9xh7ZBW0JvxO+JZly4pMV/gMuf2NKnxFR1jfSXPCBjSGaYjBfweEAvMJ61iH3r64T2Tis2hjg2SdkCjimwYva9dh7cGVkYGmQ== imported-openssh-key'
 
 echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
@@ -32,13 +31,13 @@ echo "TENANT_SUBSCRIPTION_ID: $TENANT_SUBSCRIPTION_ID"
 echo "TENANT_USERNAME: $TENANT_USERNAME"
 echo "FQDN_ENDPOINT_SUFFIX: $FQDN_ENDPOINT_SUFFIX"
 echo "ADMIN_USERNAME: $ADMIN_USERNAME"
-echo "SSH_PUBLICKEY: $SSH_PUBLICKEY"
 echo "MASTER_DNS_PREFIX: $MASTER_DNS_PREFIX"
 echo "AGENT_COUNT: $AGENT_COUNT"
 echo "SPN_CLIENT_ID: $SPN_CLIENT_ID"
 echo "SPN_CLIENT_SECRET: $SPN_CLIENT_SECRET"
 echo "K8S_AZURE_CLOUDPROVIDER_VERSION: $K8S_AZURE_CLOUDPROVIDER_VERSION"
 echo "REGION_NAME: $REGION_NAME"
+echo "SSH_PUBLICKEY: $SSH_PUBLICKEY"
 
 echo 'Printing the system information'
 sudo uname -a
@@ -46,22 +45,31 @@ sudo uname -a
 echo "Update the system."
 sudo apt-get update -y
 
+#echo "Install AzureCLI."
+## See: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest#install-on-debianubuntu-with-apt-get
+#apt-get update -y
+#apt-get install apt-transport-https -y
+#echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
+#apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+#apt-get update -y
+#apt-get install azure-cli -y
+
+#echo "Install certifi."
+#sudo apt-get install python-pip -y
+#sudo pip install --upgrade pip
+#sudo pip install certifi
+#echo "Completed installing AzureCLI."
+
 echo "Install AzureCLI."
-# See: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest#install-on-debianubuntu-with-apt-get
-apt-get update -y
-apt-get install apt-transport-https -y
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
-apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-apt-get update -y
-apt-get install azure-cli -y
+sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
+sudo apt-get install python3.5 -y
+sudo apt-get install python-pip -y
+pip install --upgrade pip
+#sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
+sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/edge > azurecliinstall.log 2>&1
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
-echo "Install Python PIP."
-sudo apt-get install python-pip -y
-echo "Upgrading Python PIP."
-sudo pip install --upgrade pip
-sudo pip install certifi
 PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
 sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
 
@@ -113,21 +121,37 @@ echo "Installing pax for string manipulation."
 sudo apt-get install pax -y
 
 echo "Installing jq for JSON manipulation."
-apt-get install jq -y
+sudo apt-get install jq -y
+
+PATTERN="https://management.$REGION_NAME."
+if `echo $TENANT_ENDPOINT | grep $PATTERN 1>/dev/null 2>&1`
+then
+  echo "Validated that tenant endpoint: $TENANT_ENDPOINT is of correct format."
+else
+  echo "The tenant endpoint: $TENANT_ENDPOINT is not of correct format. Exiting!"
+  exit 1
+fi
+
+EXTERNAL_FQDN=${TENANT_ENDPOINT##*$PATTERN}
+SUFFIXES_STORAGE_ENDPOINT=$REGION_NAME.$EXTERNAL_FQDN
+SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
+FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 
 ENVIRONMENT_NAME=AzureStackCloud
 echo 'Register to the cloud.'
 az cloud register \
   --name $ENVIRONMENT_NAME \
-  --endpoint-resource-manager $TENANT_ENDPOINT
+  --endpoint-resource-manager $TENANT_ENDPOINT \
+  --suffix-storage-endpoint $SUFFIXES_STORAGE_ENDPOINT \
+  --suffix-keyvault-dns $SUFFIXES_KEYVAULT_DNS \
+  --endpoint-vm-image-alias-doc 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/master/arm-compute/quickstart-templates/aliases.json' \
+  --profile 2017-03-09-profile
 
 echo 'Set the current cloud to be $ENVIRONMENT_NAME'
 az cloud set --name $ENVIRONMENT_NAME
 
 ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
 ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
-SUFFIXES_STORAGE_ENDPOINT=$(az cloud show | jq '.suffixes.storageEndpoint' | tr -d \")
-SUFFIXES_KEYVAULT_DNS=$(az cloud show | jq '.suffixes.keyvaultDns' | tr -d \")
 
 echo 'Override the default file with the correct values in the API model.'
 sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json

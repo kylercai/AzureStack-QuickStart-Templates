@@ -24,7 +24,7 @@
     "tenantId": {
       "type": "string",
       "metadata": {
-        "description": "Tenant Id for the tenant."
+        "description": "Tenant Id for the tenant. It's usually in the upper right side of the tenant portal. Here is another link to retrieve it: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#get-tenant-id"
       }
     },
     "tenantUsername": {
@@ -37,12 +37,6 @@
       "type": "securestring",
       "metadata": {
         "description": "Tenant Password. We need to connect to ARM tenant endpoint to create the orchestrator (e.g. Kubernetes). This is password for the tenant."
-      }
-    },
-    "fqdnEndpointSuffix": {
-      "type": "string",
-      "metadata": {
-        "description": "Endpoint of FQDN. e.g. cloudapp.azurestack.external (one-node), cloudapp.ext-n42r0703.masd.stbtest.microsoft.com (multi-node)."
       }
     },
     "masterProfileDnsPrefix": {
@@ -138,24 +132,24 @@
     "imageSku": "16.04-LTS",
     "vmSize":  "Standard_D2_v2",
     "OSDiskName": "osdisk",
-    "nicName": "myVnic",
+    "nicName": "[concat('vnic', resourceGroup().name)]",
     "addressPrefix": "10.0.0.0/24",
     "subnetName": "mySubnet",
     "subnetPrefix": "10.0.0.0/24",
     "storageAccountName": "[concat('sa', resourceGroup().name)]",
     "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "myPublicIP",
+    "publicIPAddressName": "[concat('publicIP', resourceGroup().name)]",
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
     "vmName": "[concat('vm', resourceGroup().name)]",
-    "virtualNetworkName": "myVnet",
+    "virtualNetworkName": "[concat('vnet', resourceGroup().name)]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "networkSecurityGroupName": "[tolower(concat('nsg',uniquestring(resourceGroup().id)))]",
     "sshKeyPath": "[concat('/home/',parameters('linuxAdminUsername'),'/.ssh/authorized_keys')]",
     "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('fqdnEndpointSuffix'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'))]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'))]"
   },
   "resources": [
     {

@@ -20,9 +20,6 @@
       "tenantPassword": {
         "value": ""
       },
-      "fqdnEndpointSuffix": {
-        "value": ""
-      },
       "masterProfileDnsPrefix": {
         "value": ""
       },
