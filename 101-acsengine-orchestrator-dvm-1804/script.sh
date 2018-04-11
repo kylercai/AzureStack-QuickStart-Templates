@@ -29,7 +29,6 @@ echo "TENANT_ENDPOINT: $TENANT_ENDPOINT"
 echo "TENANT_ID: $TENANT_ID"
 echo "TENANT_SUBSCRIPTION_ID: $TENANT_SUBSCRIPTION_ID"
 echo "TENANT_USERNAME: $TENANT_USERNAME"
-echo "FQDN_ENDPOINT_SUFFIX: $FQDN_ENDPOINT_SUFFIX"
 echo "ADMIN_USERNAME: $ADMIN_USERNAME"
 echo "MASTER_DNS_PREFIX: $MASTER_DNS_PREFIX"
 echo "AGENT_COUNT: $AGENT_COUNT"
@@ -55,6 +54,8 @@ sudo apt-get update -y
 #apt-get install azure-cli -y
 
 #echo "Install certifi."
+#sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
+#sudo apt-get install python3.5 -y
 #sudo apt-get install python-pip -y
 #sudo pip install --upgrade pip
 #sudo pip install certifi
@@ -65,7 +66,6 @@ sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
 sudo apt-get install python3.5 -y
 sudo apt-get install python-pip -y
 pip install --upgrade pip
-#sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
 sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/edge > azurecliinstall.log 2>&1
 echo "Completed installing AzureCLI."
 
@@ -80,6 +80,12 @@ update-ca-certificates
 echo 'Retrieve the AzureStack root CA certificate thumbprint'
 THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -noout | cut -d'=' -f 2 | tr -d :)
 echo 'Thumbprint for AzureStack root CA certificate:' $THUMBPRINT
+
+echo "Installing pax for string manipulation."
+sudo apt-get install pax -y
+
+echo "Installing jq for JSON manipulation."
+sudo apt-get install jq -y
 
 echo "Clone the ACS-Engine repo"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
@@ -117,12 +123,6 @@ fi
 echo "Printing help for acs-engine to ensure that binary is available."
 sudo ./bin/acs-engine --help
 
-echo "Installing pax for string manipulation."
-sudo apt-get install pax -y
-
-echo "Installing jq for JSON manipulation."
-sudo apt-get install jq -y
-
 PATTERN="https://management.$REGION_NAME."
 if `echo $TENANT_ENDPOINT | grep $PATTERN 1>/dev/null 2>&1`
 then
@@ -147,17 +147,24 @@ az cloud register \
   --endpoint-vm-image-alias-doc 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/master/arm-compute/quickstart-templates/aliases.json' \
   --profile 2017-03-09-profile
 
-echo 'Set the current cloud to be $ENVIRONMENT_NAME'
+echo "Set the current cloud to be $ENVIRONMENT_NAME"
 az cloud set --name $ENVIRONMENT_NAME
 
 ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
 ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
 
 echo 'Override the default file with the correct values in the API model.'
+if [ ! examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json ] then
+  echo "File azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json does not exist. Exiting..."
+  exit 1
+else
+  echo "Found azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json."
+fi
+
+echo "Copied the default file API model."
 sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
-if [ ! azurestack.json ]
-then
-  echo "File does not exist. Exiting..."
+if [ ! azurestack.json ] then
+  echo "File azurestack.json does not exist in $PWD. Exiting..."
   exit 1
 fi
 
