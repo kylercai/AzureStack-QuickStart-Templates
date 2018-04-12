@@ -199,8 +199,6 @@ jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clien
 jq --arg SPN_CLIENT_SECRET $SPN_CLIENT_SECRET '.properties.servicePrincipalProfile.secret = $SPN_CLIENT_SECRET' > azurestack_temp.json
 
 
-sudo cat azurestack.json | jq '.properties.agentPoolProfiles[0].count = $AGENT_COUNT' > azurestack_temp.json
-
 if [ -s "azurestack_temp.json" ] ; then
 	echo "Found azurestack_temp.json in $PWD and is > 0 bytes"
 else
