@@ -164,11 +164,11 @@ else
 fi
 
 echo "Copying the default file API model to $PWD."
-cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
+sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
 if [ -s "azurestack.json" ] ; then
 	echo "Found azurestack.json in $PWD and is > 0 bytes"
 else
-	echo "File azurestack.json does not exist or is zero length."
+	echo "File azurestack.json does not exist in $PWD or is zero length."
 	exit 1
 fi
 
@@ -187,6 +187,12 @@ jq --arg SSH_PUBLICKEY $SSH_PUBLICKEY '.properties.linuxProfile.ssh.publicKeys[0
 jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clientId = $SPN_CLIENT_ID' | \
 jq --arg SPN_CLIENT_SECRET $SPN_CLIENT_SECRET '.properties.servicePrincipalProfile.secret = $SPN_CLIENT_SECRET' > azurestack_temp.json
 
+if [ -s "azurestack_temp.json" ] ; then
+	echo "Found azurestack_temp.json in $PWD and is > 0 bytes"
+else
+	echo "File azurestack_temp.json does not exist in $PWD or is zero length. Error happend during building the input API model or cluster definition."
+	exit 1
+fi
 sudo mv azurestack_temp.json azurestack.json
 
 echo "Done building the API model based on the stamp information."
