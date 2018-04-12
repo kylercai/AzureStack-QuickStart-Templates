@@ -172,6 +172,15 @@ else
 	exit 1
 fi
 
+# Validate and generate SSH key.
+if [ ! $SSH_PUBLICKEY ] ; then
+	echo "No SSH key found. Will generate one and place the public/private key under $PWD/ssh_dir"	
+	mkdir -p "ssh_dir"
+	ssh-keygen -b 2048 -t rsa -f "ssh_dir/id_rsa" -q -N ""
+	ssh-keygen -y -f "ssh_dir/id_rsa" > "${OUTPUT}/id_rsa.pub"
+	export SSH_PUBLICKEY="$(cat "ssh_dir/id_rsa.pub")"
+fi
+
 sudo cat azurestack.json | jq --arg THUMBPRINT $THUMBPRINT '.properties.cloudProfile.resourceManagerRootCertificate = $THUMBPRINT' | \
 jq --arg ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID $ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID '.properties.cloudProfile.serviceManagementEndpoint = $ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID' | \
 jq --arg TENANT_ENDPOINT $TENANT_ENDPOINT '.properties.cloudProfile.resourceManagerEndpoint = $TENANT_ENDPOINT' | \
@@ -183,7 +192,7 @@ jq --arg REGION_NAME $REGION_NAME '.properties.cloudProfile.location = $REGION_N
 jq --arg MASTER_DNS_PREFIX $MASTER_DNS_PREFIX '.properties.masterProfile.dnsPrefix = $MASTER_DNS_PREFIX' | \
 jq --arg AGENT_COUNT $AGENT_COUNT '.properties.agentPoolProfiles[0].count = $AGENT_COUNT' | \
 jq --arg ADMIN_USERNAME $ADMIN_USERNAME '.properties.linuxProfile.adminUsername = $ADMIN_USERNAME' | \
-jq --arg SSH_PUBLICKEY $SSH_PUBLICKEY '.properties.linuxProfile.ssh.publicKeys[0].keyData = $SSH_PUBLICKEY' | \
+jq --arg SSH_PUBLICKEY "${SSH_PUBLICKEY}" '.properties.linuxProfile.ssh.publicKeys[0].keyData = $SSH_PUBLICKEY' | \
 jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clientId = $SPN_CLIENT_ID' | \
 jq --arg SPN_CLIENT_SECRET $SPN_CLIENT_SECRET '.properties.servicePrincipalProfile.secret = $SPN_CLIENT_SECRET' > azurestack_temp.json
 
@@ -193,8 +202,8 @@ else
 	echo "File azurestack_temp.json does not exist in $PWD or is zero length. Error happend during building the input API model or cluster definition."
 	exit 1
 fi
-sudo mv azurestack_temp.json azurestack.json
 
+sudo mv azurestack_temp.json azurestack.json
 echo "Done building the API model based on the stamp information."
 
 echo 'Login to the cloud.'
