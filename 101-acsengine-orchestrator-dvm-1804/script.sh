@@ -66,7 +66,7 @@ sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
 sudo apt-get install python3.5 -y
 sudo apt-get install python-pip -y
 pip install --upgrade pip
-sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/edge > azurecliinstall.log 2>&1
+sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/edge
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
@@ -163,14 +163,13 @@ else
 	exit 1
 fi
 
-echo "Copied the default file API model."
-sudo cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
-if [ -f "azurestack.json" ] 
-then
-	echo "Found azurestack.json."
+echo "Copying the default file API model to $PWD."
+cp examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json azurestack.json
+if [ -s "azurestack.json" ] ; then
+	echo "Found azurestack.json in $PWD and is > 0 bytes"
 else
-  echo "File azurestack.json does not exist in $PWD. Exiting..."
-  exit 1
+	echo "File azurestack.json does not exist or is zero length."
+	exit 1
 fi
 
 sudo cat azurestack.json | jq --arg THUMBPRINT $THUMBPRINT '.properties.cloudProfile.resourceManagerRootCertificate = $THUMBPRINT' | \

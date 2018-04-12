@@ -6,19 +6,19 @@
       "type": "string",
       "defaultValue": "azureuser",
       "metadata": {
-        "description": "User name for the Linux Virtual Machines (SSH or Password) that are part of the orchestrator (e.g. Kubernetes)."
+        "description": "User name for the Linux Virtual Machines (SSH or Password) that are part of the Kubernetes cluster and DVM."
       }
     },
     "sshPublicKey": {
       "metadata": {
-        "description": "SSH public key used for auth to all Linux machines created as part of the orchestrator (e.g. Kubernetes)."
+        "description": "SSH public key used for auth to all Linux machines created as part of the the Kubernetes cluster."
       },
       "type": "string"
     },
     "tenantArmEndpoint": {
       "type": "string",
       "metadata": {
-        "description": "Tenant endpoint. This is the ARM endpoint to connect to create the resoure group for the orchestrator (e.g. Kubernetes)."
+        "description": "Tenant endpoint. This is the ARM endpoint to connect to create the resoure group for the Kubernetes cluster. e.g. https://management.redmond.ext-n42r0703.masd.stbtest.microsoft.com (multi-node) or https://management.local.azurestack.external (one-node)."
       }
     },
     "tenantId": {
@@ -36,13 +36,13 @@
     "tenantPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Tenant Password. We need to connect to ARM tenant endpoint to create the orchestrator (e.g. Kubernetes). This is password for the tenant."
+        "description": "Tenant Password. We need to connect to ARM tenant endpoint to create the Kubernetes cluster. This is password for the tenant."
       }
     },
     "masterProfileDnsPrefix": {
       "type": "string",
       "metadata": {
-        "description": "Sets the Domain name label for the master IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
+        "description": "This must be a region-unique name e.g. k8s-12345. This will also be the resource group name for the kubernetes cluster."
       }
     },
     "agentPoolProfileCount": {
@@ -82,13 +82,13 @@
       ],
       "defaultValue": 2,
       "metadata": {
-        "description": "The number of agents for the orchestrator cluster. This value can be from 1 to 32"
+        "description": "The number of agents for the Kubernetes cluster. This value can be from 1 to 32"
       },
       "type": "int"
     },
     "servicePrincipalClientId": {
       "metadata": {
-        "description": "Client ID (used by cloudprovider)"
+        "description": "The Service Principal application ID (used by the Kubernetes Azure cloud provider). More help here: https://github.com/Azure/acs-engine/blob/master/docs/serviceprincipal.md"
       },
       "type": "securestring"
     },
