@@ -149,7 +149,7 @@
     "sshKeyPath": "[concat('/home/',parameters('linuxAdminUsername'),'/.ssh/authorized_keys')]",
     "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' \"', parameters('sshPublicKey'), '\" ')]"
+    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
   },
   "resources": [
     {

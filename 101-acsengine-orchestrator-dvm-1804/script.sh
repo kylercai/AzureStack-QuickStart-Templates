@@ -22,7 +22,7 @@ SPN_CLIENT_ID=${10}
 SPN_CLIENT_SECRET=${11}
 K8S_AZURE_CLOUDPROVIDER_VERSION=${12}
 REGION_NAME=${13}
-SSH_PUBLICKEY1=${14}
+SSH_PUBLICKEY1="${14} ${15} ${16}"
 SSH_PUBLICKEY='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDvbLKDItnLMl4boe4/7Sg7azBznr1k/MCpjYroJDPxOn9m4RMAtvE7iQV8P/oqGY6DjyS7kS8ShMMRaedZ/X1xcHVOTmSihWk0hdgWfyyhHJHo5cKnnZCJYH0U4REf5ofwQlP+N+7fN2xNkQaw/qjYUH8nNpRp7z9nLk1MxAD35jACGKjth417oEM7kr86qePkdy18m+YEA8713UbUWXnqHduOsXdG+QfeHN4P3G11fHXs6yYpzf/Xmi/U6KN2fv8Q4w/5JrRmLOB++a1UYdhoQYkexuLpv53PGBqJpKrJMmv7v1ZsXV8WR7LFLlkzzbrnzICts3dr3S2FMVAAdproCG5CnwHK0kocxXDBRnicgW0ymyfFGzNtr3hXgvP7AmZWYE013/5P2068lqwU8RGQKnDE1ydIcZ58U3IkAWyswOGYML9NbbZMEV1cdBBBi8Gu6uy/3sd+vnfciTasYNF70z1qWKCawWWOEwit9mKEANh677M/dfzt9yJABRhQmDNKjxI0TumDYoCXMEZ7czHYmhKue1tBAJbgDUN23lr/xS7YT3feoVnGovazDUI+SOdrIsZXPIUlN9xh7ZBW0JvxO+JZly4pMV/gMuf2NKnxFR1jfSXPCBjSGaYjBfweEAvMJ61iH3r64T2Tis2hjg2SdkCjimwYva9dh7cGVkYGmQ== imported-openssh-key'
 
 echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
@@ -197,6 +197,9 @@ jq --arg ADMIN_USERNAME $ADMIN_USERNAME '.properties.linuxProfile.adminUsername 
 jq --arg SSH_PUBLICKEY "${SSH_PUBLICKEY}" '.properties.linuxProfile.ssh.publicKeys[0].keyData = $SSH_PUBLICKEY' | \
 jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clientId = $SPN_CLIENT_ID' | \
 jq --arg SPN_CLIENT_SECRET $SPN_CLIENT_SECRET '.properties.servicePrincipalProfile.secret = $SPN_CLIENT_SECRET' > azurestack_temp.json
+
+
+sudo cat azurestack.json | jq '.properties.agentPoolProfiles[0].count = $AGENT_COUNT' > azurestack_temp.json
 
 if [ -s "azurestack_temp.json" ] ; then
 	echo "Found azurestack_temp.json in $PWD and is > 0 bytes"
