@@ -130,6 +130,7 @@
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "imageSku": "16.04-LTS",
+    "imageVersion":  "16.04.201802220",
     "vmSize":  "Standard_D2_v2",
     "OSDiskName": "osdisk",
     "nicName": "[concat('dvm-vnic', resourceGroup().name)]",
@@ -281,7 +282,7 @@
             "publisher": "[variables('imagePublisher')]",
             "offer": "[variables('imageOffer')]",
             "sku": "[variables('imageSku')]",
-            "version": "latest"
+            "version": "[variables('imageVersion')]"
           },
           "osDisk": {
             "name": "osdisk",
@@ -327,7 +328,14 @@
       }
     }
   ],
-
   "outputs": {
+    "dvmPublicIpId": {
+      "value": "[resourceId(concat('Microsoft.Network/publicIPAddresses'),variables('publicIPAddressName'))]",
+      "type": "string"
+    },
+    "dvmPublicIpFqdn": {
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName')),'2015-06-15').dnsSettings.fqdn]",
+      "type": "string"
+    }
   }
 }

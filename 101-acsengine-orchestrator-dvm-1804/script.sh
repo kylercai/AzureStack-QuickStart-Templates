@@ -9,21 +9,23 @@ whoami
 sleep 20
 
 # Script parameters
-BUILD_ACS_ENGINE=${1}
-TENANT_ENDPOINT=${2}
-TENANT_ID=${3}
-TENANT_SUBSCRIPTION_ID=${4}
-TENANT_USERNAME=${5}
-TENANT_PASSWORD=${6}
-ADMIN_USERNAME=${7}
-MASTER_DNS_PREFIX=${8}
-AGENT_COUNT=${9}
-SPN_CLIENT_ID=${10}
-SPN_CLIENT_SECRET=${11}
-K8S_AZURE_CLOUDPROVIDER_VERSION=${12}
-REGION_NAME=${13}
-SSH_PUBLICKEY="${14} ${15} ${16}"
+RESOURCE_GROUP_NAME=${1}
+BUILD_ACS_ENGINE=${2}
+TENANT_ENDPOINT=${3}
+TENANT_ID=${4}
+TENANT_SUBSCRIPTION_ID=${5}
+TENANT_USERNAME=${6}
+TENANT_PASSWORD=${7}
+ADMIN_USERNAME=${8}
+MASTER_DNS_PREFIX=${9}
+AGENT_COUNT=${10}
+SPN_CLIENT_ID=${11}
+SPN_CLIENT_SECRET=${12}
+K8S_AZURE_CLOUDPROVIDER_VERSION=${13}
+REGION_NAME=${14}
+SSH_PUBLICKEY="${15} ${16} ${17}"
 
+echo "RESOURCE_GROUP_NAME: $RESOURCE_GROUP_NAME"
 echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
 echo "TENANT_ENDPOINT: $TENANT_ENDPOINT"
 echo "TENANT_ID: $TENANT_ID"
@@ -45,6 +47,12 @@ sudo uname -a
 echo "Update the system."
 sudo apt-get update -y
 
+echo "Installing pax for string manipulation."
+sudo apt-get install pax -y
+
+echo "Installing jq for JSON manipulation."
+sudo apt-get install jq -y
+
 echo "Install AzureCLI."
 sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
 sudo apt-get install python3.5 -y
@@ -65,12 +73,7 @@ echo 'Retrieve the AzureStack root CA certificate thumbprint'
 THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -noout | cut -d'=' -f 2 | tr -d :)
 echo 'Thumbprint for AzureStack root CA certificate:' $THUMBPRINT
 
-echo "Installing pax for string manipulation."
-sudo apt-get install pax -y
-
-echo "Installing jq for JSON manipulation."
-sudo apt-get install jq -y
-
+#TODO: change to get from appropriate tag/release from master
 echo "Clone the ACS-Engine repo"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
 cd acs-engine
@@ -156,20 +159,20 @@ else
 	exit 1
 fi
 
-sudo cat azurestack.json | jq --arg THUMBPRINT $THUMBPRINT '.properties.cloudProfile.resourceManagerRootCertificate = $THUMBPRINT' | \
-jq --arg ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID $ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID '.properties.cloudProfile.serviceManagementEndpoint = $ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID' | \
-jq --arg TENANT_ENDPOINT $TENANT_ENDPOINT '.properties.cloudProfile.resourceManagerEndpoint = $TENANT_ENDPOINT' | \
-jq --arg ENDPOINT_GALLERY $ENDPOINT_GALLERY '.properties.cloudProfile.galleryEndpoint = $ENDPOINT_GALLERY' | \
-jq --arg SUFFIXES_STORAGE_ENDPOINT $SUFFIXES_STORAGE_ENDPOINT '.properties.cloudProfile.storageEndpointSuffix = $SUFFIXES_STORAGE_ENDPOINT' | \
-jq --arg SUFFIXES_KEYVAULT_DNS $SUFFIXES_KEYVAULT_DNS '.properties.cloudProfile.keyVaultDNSSuffix = $SUFFIXES_KEYVAULT_DNS' | \
-jq --arg FQDN_ENDPOINT_SUFFIX $FQDN_ENDPOINT_SUFFIX '.properties.cloudProfile.resourceManagerVMDNSSuffix = $FQDN_ENDPOINT_SUFFIX' | \
-jq --arg REGION_NAME $REGION_NAME '.properties.cloudProfile.location = $REGION_NAME' | \
-jq --arg MASTER_DNS_PREFIX $MASTER_DNS_PREFIX '.properties.masterProfile.dnsPrefix = $MASTER_DNS_PREFIX' | \
+sudo cat azurestack.json | jq '.properties.cloudProfile.resourceManagerRootCertificate'=$THUMBPRINT | \
+jq '.properties.cloudProfile.serviceManagementEndpoint'=$ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID | \
+jq '.properties.cloudProfile.resourceManagerEndpoint'=$TENANT_ENDPOINT | \
+jq '.properties.cloudProfile.galleryEndpoint'=$ENDPOINT_GALLERY | \
+jq '.properties.cloudProfile.storageEndpointSuffix'=$SUFFIXES_STORAGE_ENDPOINT | \
+jq '.properties.cloudProfile.keyVaultDNSSuffix'=$SUFFIXES_KEYVAULT_DNS | \
+jq '.properties.cloudProfile.resourceManagerVMDNSSuffix'=$FQDN_ENDPOINT_SUFFIX | \
+jq '.properties.cloudProfile.location'=$REGION_NAME | \
+jq '.properties.masterProfile.dnsPrefix'=$MASTER_DNS_PREFIX | \
 jq '.properties.agentPoolProfiles[0].count'=$AGENT_COUNT | \
-jq --arg ADMIN_USERNAME $ADMIN_USERNAME '.properties.linuxProfile.adminUsername = $ADMIN_USERNAME' | \
-jq --arg SSH_PUBLICKEY "${SSH_PUBLICKEY}" '.properties.linuxProfile.ssh.publicKeys[0].keyData = $SSH_PUBLICKEY' | \
-jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clientId = $SPN_CLIENT_ID' | \
-jq --arg SPN_CLIENT_SECRET $SPN_CLIENT_SECRET '.properties.servicePrincipalProfile.secret = $SPN_CLIENT_SECRET' > azurestack_temp.json
+jq '.properties.linuxProfile.adminUsername'=$ADMIN_USERNAME | \
+jq '.properties.linuxProfile.ssh.publicKeys[0].keyData'=$SSH_PUBLICKEY | \
+jq '.properties.servicePrincipalProfile.clientId'=$SPN_CLIENT_ID | \
+jq '.properties.servicePrincipalProfile.secret'=$SPN_CLIENT_SECRET > azurestack_temp.json
 
 if [ -s "azurestack_temp.json" ] ; then
 	echo "Found azurestack_temp.json in $PWD and is > 0 bytes"
@@ -194,11 +197,12 @@ MYDIR=$PWD
 echo "Current directory is: $MYDIR"
 
 echo "Generate and Deploy the template using the API model in resource group $MASTER_DNS_PREFIX."
-sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION_NAME --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPN_CLIENT_ID --client-secret $SPN_CLIENT_SECRET --auth-method client_secret --api-model azurestack.json
+sudo ./bin/acs-engine deploy --resource-group $RESOURCE_GROUP_NAME --azure-env $ENVIRONMENT_NAME --location $REGION_NAME --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPN_CLIENT_ID --client-secret $SPN_CLIENT_SECRET --auth-method client_secret --api-model azurestack.json
 
 echo "Accessing the generated templates."
 sudo chmod 777 -R _output/
-cd _output/
+
+echo "Templates output directory is $PWD/_output/$MASTER_DNS_PREFIX"
 
 echo "Ending test for acsengine-kubernetes-dvm."
 
