@@ -17,7 +17,8 @@ Here are some important links:
  
 
 ================================================================================
-STEPS: Please follow the steps below try Kubernetes: Collect stamp information for API model, generate and deploy the template.
+STEPS: Please follow the steps below try Kubernetes: This template This template deploys a Linux VM, clones the ACS-Engine repo, generate the ACS-Engine templates and deploys it.
+
 
 1) Prerequistes:
 

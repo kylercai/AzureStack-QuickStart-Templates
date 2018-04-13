@@ -42,7 +42,7 @@
     "masterProfileDnsPrefix": {
       "type": "string",
       "metadata": {
-        "description": "This must be a region-unique name e.g. k8s-12345. This will also be the resource group name for the kubernetes cluster."
+        "description": "This must be a region-unique name e.g. k8s-12345. Try to chose it same as the resource group name as best practice."
       }
     },
     "agentPoolProfileCount": {
