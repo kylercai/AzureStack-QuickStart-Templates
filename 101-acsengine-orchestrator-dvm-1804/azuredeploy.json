@@ -322,7 +322,7 @@
         "autoUpgradeMinorVersion": "true",
         "settings": {
           "fileUris": [ "[concat(parameters('_artifactsLocation'), variables('scriptName'), '.sh')]" ],
-          "commandToExecute": "[concat('/bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/acsengine-orchestrator-dvm.log 2>&1\"')]"
+          "commandToExecute": "[concat('/bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/acsengine-kubernetes-dvm.log 2>&1\"')]"
         }
       }
     }

@@ -1,6 +1,6 @@
 set -e
 
-echo "Starting test for acsengine-orchestrator-dvm."
+echo "Starting test for acsengine-kubernetes-dvm."
 date
 
 echo "Running as:"
@@ -137,7 +137,7 @@ az cloud set --name $ENVIRONMENT_NAME
 ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
 ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
 
-echo 'Override the default file with the correct values in the API model.'
+echo 'Overriding the default file with the correct values in the API model or the cluster definition.'
 
 if [ -f "examples/azurestack/azurestack-kubernetes$K8S_AZURE_CLOUDPROVIDER_VERSION.json" ]
 then
@@ -165,7 +165,7 @@ jq --arg SUFFIXES_KEYVAULT_DNS $SUFFIXES_KEYVAULT_DNS '.properties.cloudProfile.
 jq --arg FQDN_ENDPOINT_SUFFIX $FQDN_ENDPOINT_SUFFIX '.properties.cloudProfile.resourceManagerVMDNSSuffix = $FQDN_ENDPOINT_SUFFIX' | \
 jq --arg REGION_NAME $REGION_NAME '.properties.cloudProfile.location = $REGION_NAME' | \
 jq --arg MASTER_DNS_PREFIX $MASTER_DNS_PREFIX '.properties.masterProfile.dnsPrefix = $MASTER_DNS_PREFIX' | \
-jq '.properties.agentPoolProfiles[0].count' = $AGENT_COUNT | \
+jq '.properties.agentPoolProfiles[0].count'=$AGENT_COUNT | \
 jq --arg ADMIN_USERNAME $ADMIN_USERNAME '.properties.linuxProfile.adminUsername = $ADMIN_USERNAME' | \
 jq --arg SSH_PUBLICKEY "${SSH_PUBLICKEY}" '.properties.linuxProfile.ssh.publicKeys[0].keyData = $SSH_PUBLICKEY' | \
 jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clientId = $SPN_CLIENT_ID' | \
@@ -200,7 +200,7 @@ echo "Accessing the generated templates."
 sudo chmod 777 -R _output/
 cd _output/
 
-echo "Ending test for acsengine-orchestrator-dvm."
+echo "Ending test for acsengine-kubernetes-dvm."
 
 
 
