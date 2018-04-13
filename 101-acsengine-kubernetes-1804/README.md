@@ -1,12 +1,8 @@
 The Azure Container Service Engine (acs-engine) generates ARM (Azure Resource Manager) templates for Docker enabled clusters on Microsoft Azure with your choice of DC/OS, Kubernetes, Swarm Mode, or Swarm orchestrators.
 
-# To learn more about generating templates using ACS-Engine refer to ACS Engine: 
-https://github.com/msazurestackworkloads/acs-engine/blob/master/docs/kubernetes.md
-
-
 We have modified acs-engine to work with AzureStack. Please follow the steps below try Kubernetes
 ================================================================================
-This template deploys a Linux VM, clones the ACS-Engine repo, generate the ACS-Engine templates and deploys then from the linux VM.
+This template deploys a Linux VM, clones and AzureStack forked ACS-Engine repo/branch, generate the ACS-Engine templates and deploys them from the linux VM.
 
 1) Prerequistes:
 	a) You need to be able to create SPN (applications) in your tenant AAD (in Azure portal) for Kubernetes deployment. 
@@ -16,7 +12,7 @@ This template deploys a Linux VM, clones the ACS-Engine repo, generate the ACS-E
 	b) Create an SPN in your AAD in Azure portal: 
 	   https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#create-an-azure-active-directory-application
 
-	b) SSH key is required to login to the Linux VMs.
+	b) SSH key is required to login to the Linux VMs. You would need to pass the public key to the template inputs.
 	   https://github.com/msazurestackworkloads/acs-engine/blob/master/docs/ssh.md#ssh-key-generation
 
 	c) Ensure that following Ubuntu image is added from marketplace,
@@ -56,6 +52,9 @@ Here are some important links:
 
 3) Example of working JSON (API model): 
 	https://github.com/msazurestackworkloads/acs-engine/tree/acs-engine-v0140/examples/azurestack/azurestack-kubernetes1.7.json
+
+4) To learn more about generating templates using ACS-Engine refer to ACS Engine: 
+	https://github.com/msazurestackworkloads/acs-engine/blob/master/docs/kubernetes.md
 
 
 
