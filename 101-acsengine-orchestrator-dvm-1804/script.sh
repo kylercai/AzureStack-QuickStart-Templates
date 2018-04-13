@@ -159,20 +159,20 @@ else
 	exit 1
 fi
 
-sudo cat azurestack.json | jq '.properties.cloudProfile.resourceManagerRootCertificate'=$THUMBPRINT | \
-jq '.properties.cloudProfile.serviceManagementEndpoint'=$ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID | \
-jq '.properties.cloudProfile.resourceManagerEndpoint'=$TENANT_ENDPOINT | \
-jq '.properties.cloudProfile.galleryEndpoint'=$ENDPOINT_GALLERY | \
-jq '.properties.cloudProfile.storageEndpointSuffix'=$SUFFIXES_STORAGE_ENDPOINT | \
-jq '.properties.cloudProfile.keyVaultDNSSuffix'=$SUFFIXES_KEYVAULT_DNS | \
-jq '.properties.cloudProfile.resourceManagerVMDNSSuffix'=$FQDN_ENDPOINT_SUFFIX | \
-jq '.properties.cloudProfile.location'=$REGION_NAME | \
-jq '.properties.masterProfile.dnsPrefix'=$MASTER_DNS_PREFIX | \
+sudo cat azurestack.json | jq --arg THUMBPRINT $THUMBPRINT '.properties.cloudProfile.resourceManagerRootCertificate = $THUMBPRINT' | \
+jq --arg ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID $ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID '.properties.cloudProfile.serviceManagementEndpoint = $ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID' | \
+jq --arg TENANT_ENDPOINT $TENANT_ENDPOINT '.properties.cloudProfile.resourceManagerEndpoint = $TENANT_ENDPOINT' | \
+jq --arg ENDPOINT_GALLERY $ENDPOINT_GALLERY '.properties.cloudProfile.galleryEndpoint = $ENDPOINT_GALLERY' | \
+jq --arg SUFFIXES_STORAGE_ENDPOINT $SUFFIXES_STORAGE_ENDPOINT '.properties.cloudProfile.storageEndpointSuffix = $SUFFIXES_STORAGE_ENDPOINT' | \
+jq --arg SUFFIXES_KEYVAULT_DNS $SUFFIXES_KEYVAULT_DNS '.properties.cloudProfile.keyVaultDNSSuffix = $SUFFIXES_KEYVAULT_DNS' | \
+jq --arg FQDN_ENDPOINT_SUFFIX $FQDN_ENDPOINT_SUFFIX '.properties.cloudProfile.resourceManagerVMDNSSuffix = $FQDN_ENDPOINT_SUFFIX' | \
+jq --arg REGION_NAME $REGION_NAME '.properties.cloudProfile.location = $REGION_NAME' | \
+jq --arg MASTER_DNS_PREFIX $MASTER_DNS_PREFIX '.properties.masterProfile.dnsPrefix = $MASTER_DNS_PREFIX' | \
 jq '.properties.agentPoolProfiles[0].count'=$AGENT_COUNT | \
-jq '.properties.linuxProfile.adminUsername'=$ADMIN_USERNAME | \
-jq '.properties.linuxProfile.ssh.publicKeys[0].keyData'=$SSH_PUBLICKEY | \
-jq '.properties.servicePrincipalProfile.clientId'=$SPN_CLIENT_ID | \
-jq '.properties.servicePrincipalProfile.secret'=$SPN_CLIENT_SECRET > azurestack_temp.json
+jq --arg ADMIN_USERNAME $ADMIN_USERNAME '.properties.linuxProfile.adminUsername = $ADMIN_USERNAME' | \
+jq --arg SSH_PUBLICKEY "${SSH_PUBLICKEY}" '.properties.linuxProfile.ssh.publicKeys[0].keyData = $SSH_PUBLICKEY' | \
+jq --arg SPN_CLIENT_ID $SPN_CLIENT_ID '.properties.servicePrincipalProfile.clientId = $SPN_CLIENT_ID' | \
+jq --arg SPN_CLIENT_SECRET $SPN_CLIENT_SECRET '.properties.servicePrincipalProfile.secret = $SPN_CLIENT_SECRET' > azurestack_temp.json
 
 if [ -s "azurestack_temp.json" ] ; then
 	echo "Found azurestack_temp.json in $PWD and is > 0 bytes"
