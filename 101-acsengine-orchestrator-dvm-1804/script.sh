@@ -208,7 +208,7 @@ MYDIR=$PWD
 echo "Current directory is: $MYDIR"
 
 echo "Generate and Deploy the template using the API model in resource group $MASTER_DNS_PREFIX."
-sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPN_CLIENT_ID --client-secret $SPN_CLIENT_SECRET --auth-method client_secret --api-model azurestack.json
+sudo ./bin/acs-engine deploy --resource-group $MASTER_DNS_PREFIX --azure-env $ENVIRONMENT_NAME --location $REGION_NAME --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPN_CLIENT_ID --client-secret $SPN_CLIENT_SECRET --auth-method client_secret --api-model azurestack.json
 
 echo "Accessing the generated templates."
 sudo chmod 777 -R _output/
