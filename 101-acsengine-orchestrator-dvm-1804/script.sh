@@ -46,20 +46,11 @@ echo "Update the system."
 sudo apt-get update -y
 
 echo "Install AzureCLI."
-# See: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest#install-on-debianubuntu-with-apt-get
-apt-get update -y
-apt-get install apt-transport-https -y
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
-apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-apt-get update -y
-apt-get install azure-cli -y
-
-echo "Install certifi."
 sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
 sudo apt-get install python3.5 -y
 sudo apt-get install python-pip -y
-sudo pip install --upgrade pip
-sudo pip install certifi
+pip install --upgrade pip
+sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
