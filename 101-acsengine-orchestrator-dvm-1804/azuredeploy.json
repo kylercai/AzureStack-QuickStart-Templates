@@ -125,13 +125,14 @@
     }
   },
   "variables": {
+    "resourceGroupName":  "[resourceGroup().name]",
     "dnsNameForPublicIP": "[concat('dvm-dns', resourceGroup().name)]",
     "location": "[resourceGroup().location]",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "imageSku": "16.04-LTS",
-    "imageVersion":  "16.04.201802220",
-    "vmSize":  "Standard_D2_v2",
+    "imageVersion": "16.04.201802220",
+    "vmSize": "Standard_D2_v2",
     "OSDiskName": "osdisk",
     "nicName": "[concat('dvm-vnic', resourceGroup().name)]",
     "addressPrefix": "10.0.0.0/24",
@@ -150,7 +151,7 @@
     "sshKeyPath": "[concat('/home/',parameters('linuxAdminUsername'),'/.ssh/authorized_keys')]",
     "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
+    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
   },
   "resources": [
     {
