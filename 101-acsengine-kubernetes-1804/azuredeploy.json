@@ -330,10 +330,6 @@
     }
   ],
   "outputs": {
-    "dvmPublicIpAddress": {
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName')),'2015-06-15').ipAddress]",
-      "type": "string"
-    },
     "dvmPublicIpFqdn": {
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName')),'2015-06-15').dnsSettings.fqdn]",
       "type": "string"
