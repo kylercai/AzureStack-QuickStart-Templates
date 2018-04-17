@@ -50,6 +50,25 @@ Write-Output $key
 $key.OutputsString > $resourceGroupOutputName
 Get-Date
 
+# Adding gallery item
+
+Add-AzureRmEnvironment -Name "AzureStackUser" -ArmEndpoint "https://adminmanagement.local.azurestack.external"
+$TenantID="5308332c-26e2-4fdb-9beb-e883a706bc08"
+$UserName='ciserviceadmin@msazurestack.onmicrosoft.com'
+$Password='User@123'| ConvertTo-SecureString -Force -AsPlainText
+$Credential= New-Object PSCredential($UserName,$Password)
+Login-AzureRmAccount -EnvironmentName "AzureStackUser" -TenantId $TenantID -Credential $Credential
+
+Select-AzureRmSubscription -SubscriptionId "986e0ef8-aac1-4e58-8c90-e54521987697"
+
+Select-AzureRmSubscription -Subscription "Default Provider Subscription"
+
+Add-AzsGalleryItem -GalleryItemUri "https://azurestacktemplate.blob.core.windows.net/kubernetes-1804/Microsoft.AzureStackKubernetesCluster.1.0.0.azpkg"
+
+Remove-AzsGalleryItem -Name "Microsoft.AzureStackKubernetesCluster.1.0.0"
+
+Get-AzsGalleryItem -Name "Microsoft.AzureStackKubernetesCluster.1.0.0"
+
 # Deploy in multi-node Azure Stack #######################################################################################################
 
 Get-Date
@@ -78,3 +97,4 @@ $key = New-AzureRmResourceGroupDeployment  -Name $resourceGroupDeploymentName -R
 Write-Output $key
 $key.OutputsString > $resourceGroupOutputName
 Get-Date
+
