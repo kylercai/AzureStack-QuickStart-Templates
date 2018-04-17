@@ -1,0 +1,7 @@
+{
+  "itemDisplayName": "Deploy a Linux Ubuntu VM and VM extensions to Azure Stack",
+  "description": "Deploys a Linux Ubuntu VM and VM extensions",
+  "summary": "This template has deploys a linux VM, pull the acs-engine repo, generates a kubernetes template and deploys it.",
+  "githubUsername": "azurestack",
+  "dateUpdated": "2018-04-13"
+}
