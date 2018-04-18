@@ -138,7 +138,7 @@
     "addressPrefix": "10.0.0.0/24",
     "subnetName": "mySubnet",
     "subnetPrefix": "10.0.0.0/24",
-    "storageAccountName": "[concat('vmd-sa', resourceGroup().name)]",
+    "storageAccountName": "[concat('vmdsa', uniquestring(resourceGroup().id))]",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "[concat('vmd-publicIP', resourceGroup().name)]",
     "publicIPAddressType": "Dynamic",
