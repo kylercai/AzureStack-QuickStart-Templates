@@ -74,7 +74,7 @@ THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -no
 echo 'Thumbprint for AzureStack root CA certificate:' $THUMBPRINT
 
 # TODO: change to get from appropriate tag/release from master
-echo "Clone the ACS-Engine repo"
+echo "Cloning the ACS-Engine repo/branch: msazurestackworkloads, acs-engine-v0140"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
 cd acs-engine
 
