@@ -44,7 +44,7 @@ echo "SSH_PUBLICKEY: $SSH_PUBLICKEY"
 echo 'Printing the system information'
 sudo uname -a
 
-echo "Update the system."
+echo "Update the system 1."
 sudo apt-get update -y
 
 echo "Installing pax for string manipulation."
@@ -54,16 +54,21 @@ echo "Installing jq for JSON manipulation."
 sudo apt-get install jq -y
 
 echo "Install AzureCLI."
-sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
-sudo apt-get install python3.5 -y
-sudo apt-get install python-pip -y
-pip install --upgrade pip
-sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
+echo "Update the system 2."
+apt-get update -y
+echo "Installing apt-transport-https"
+apt-get install apt-transport-https -y
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
+apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+echo "Update the system 3."
+apt-get update -y
+echo "Installing azure-cli"
+apt-get install azure-cli -y
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
-PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
-sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
+sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
+export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
 
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
