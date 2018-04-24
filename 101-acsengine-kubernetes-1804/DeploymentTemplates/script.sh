@@ -55,10 +55,13 @@ sudo apt-get install jq -y
 
 echo "Install AzureCLI."
 sudo apt-get update -y
-sudo apt-get install apt-transport-https -y
-sudo echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
+
+# Instructions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
 sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-sudo apt-get update -y
+sudo apt-get install apt-transport-https -y
+sudo apt-get update -y 
 sudo apt-get install azure-cli -y
 echo "Completed installing AzureCLI."
 
@@ -128,6 +131,10 @@ SUFFIXES_STORAGE_ENDPOINT=$REGION_NAME.$EXTERNAL_FQDN
 SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 ENVIRONMENT_NAME=AzureStackCloud
+
+# TODO: Remove once the bug in Azure CLI is fixed.
+export ADAL_PYTHON_SSL_NO_VERIFY=1 
+export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
 
 echo 'Register to the cloud.'
 az cloud register \
