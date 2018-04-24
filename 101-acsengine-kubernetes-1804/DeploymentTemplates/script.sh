@@ -66,6 +66,10 @@ echo 'Import the root CA certificate to python store.'
 sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
 export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
 
+# TODO: Remove once the bug in Azure CLI is fixed.
+export ADAL_PYTHON_SSL_NO_VERIFY=1 
+export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
+
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
 sudo update-ca-certificates
@@ -74,7 +78,6 @@ echo 'Retrieve the AzureStack root CA certificate thumbprint'
 THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -noout | cut -d'=' -f 2 | tr -d :)
 echo 'Thumbprint for AzureStack root CA certificate:' $THUMBPRINT
 
-# TODO: change to get from appropriate tag/release from master
 echo "Cloning the ACS-Engine repo/branch: msazurestackworkloads, acs-engine-v0140"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
 cd acs-engine
@@ -124,8 +127,8 @@ EXTERNAL_FQDN=${TENANT_ENDPOINT##*$PATTERN}
 SUFFIXES_STORAGE_ENDPOINT=$REGION_NAME.$EXTERNAL_FQDN
 SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
-
 ENVIRONMENT_NAME=AzureStackCloud
+
 echo 'Register to the cloud.'
 az cloud register \
   --name $ENVIRONMENT_NAME \
