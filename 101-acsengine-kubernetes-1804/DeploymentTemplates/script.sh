@@ -55,15 +55,15 @@ sudo apt-get install jq -y
 
 echo "Install AzureCLI."
 echo "Update the system 2."
-apt-get update -y
+sudo apt-get update -y
 echo "Installing apt-transport-https"
-apt-get install apt-transport-https -y
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
-apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+sudo apt-get install apt-transport-https -y
+sudo echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
+sudo curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 echo "Update the system 3."
-apt-get update -y
+sudo apt-get update -y
 echo "Installing azure-cli"
-apt-get install azure-cli -y
+sudo apt-get install azure-cli -y
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
@@ -72,7 +72,7 @@ export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
 
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
-update-ca-certificates
+sudo update-ca-certificates
 
 echo 'Retrieve the AzureStack root CA certificate thumbprint'
 THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -noout | cut -d'=' -f 2 | tr -d :)
