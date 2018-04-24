@@ -54,15 +54,11 @@ echo "Installing jq for JSON manipulation."
 sudo apt-get install jq -y
 
 echo "Install AzureCLI."
-echo "Update the system 2."
 sudo apt-get update -y
-echo "Installing apt-transport-https"
 sudo apt-get install apt-transport-https -y
 sudo echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" > /etc/apt/sources.list.d/azure-cli.list
-sudo curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-echo "Update the system 3."
+sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
 sudo apt-get update -y
-echo "Installing azure-cli"
 sudo apt-get install azure-cli -y
 echo "Completed installing AzureCLI."
 
