@@ -14,12 +14,6 @@
       "tenantId": {
         "value": ""
       },
-      "tenantUsername": {
-        "value": ""
-      },
-      "tenantPassword": {
-        "value": ""
-      },
       "masterProfileDnsPrefix": {
         "value": ""
       },
@@ -34,9 +28,6 @@
       },
       "kubernetesAzureCloudProviderVersion": {
         "value": "1.7"
-      },
-      "buildAcsEngine": {
-        "value": "false"
       }
   }
 }
