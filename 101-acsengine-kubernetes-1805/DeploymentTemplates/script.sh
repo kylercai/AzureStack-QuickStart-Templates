@@ -60,6 +60,13 @@ retrycmd_if_failure 5 10 sudo apt-get update -y
 
 # Instructions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
 AZ_REPO=$(lsb_release -cs)
+if [ $AZ_REPO ] ; then
+	echo "Could retrieve value of (lsb_release -cs) to be $AZ_REPO"
+else
+	AZ_REPO=xenial
+	echo "Missing value of (lsb_release -cs). Assigning default of $AZ_REPO"
+fi
+
 echo "Installing Azure CLI from $AZ_REPO"
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
 sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
