@@ -14,12 +14,6 @@
       "tenantId": {
         "value": ""
       },
-      "tenantUsername": {
-        "value": ""
-      },
-      "tenantPassword": {
-        "value": ""
-      },
       "masterProfileDnsPrefix": {
         "value": ""
       },

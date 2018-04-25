@@ -6,12 +6,12 @@
       "type": "string",
       "defaultValue": "azureuser",
       "metadata": {
-        "description": "User name for the Linux Virtual Machines (SSH or Password) that are part of the Kubernetes cluster and DVM."
+        "description": "User name for the Linux Virtual Machines that are part of the Kubernetes cluster and DVM."
       }
     },
     "sshPublicKey": {
       "metadata": {
-        "description": "SSH public key used for auth to all Linux machines created as part of the the Kubernetes cluster."
+        "description": "SSH public key used for auth to all Linux machines created as part of the the Kubernetes cluster and DVM."
       },
       "type": "string"
     },
@@ -25,18 +25,6 @@
       "type": "string",
       "metadata": {
         "description": "Tenant Id for the tenant. It's usually in the upper right side of the tenant portal. Here is another link to retrieve it: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#get-tenant-id"
-      }
-    },
-    "tenantUsername": {
-      "type": "securestring",
-      "metadata": {
-        "description": "This is username for the tenant. We need to connect to ARM tenant endpoint to create the Kubernetes cluster e.g. tenantadmin1@msazurestack.onmicrosoft.com "
-      }
-    },
-    "tenantPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Tenant Password. We need to connect to ARM tenant endpoint to create the Kubernetes cluster. This is password for the tenant."
       }
     },
     "masterProfileDnsPrefix": {
@@ -138,7 +126,7 @@
     "addressPrefix": "10.0.0.0/24",
     "subnetName": "mySubnet",
     "subnetPrefix": "10.0.0.0/24",
-    "storageAccountName": "[concat('vmd-sa', resourceGroup().name)]",
+    "storageAccountName": "[concat('vmdsa', uniquestring(resourceGroup().id))]",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "[concat('vmd-publicIP', resourceGroup().name)]",
     "publicIPAddressType": "Dynamic",
@@ -151,7 +139,7 @@
     "sshKeyPath": "[concat('/home/',parameters('linuxAdminUsername'),'/.ssh/authorized_keys')]",
     "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
+    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
   },
   "resources": [
     {
@@ -173,7 +161,7 @@
           {
             "name": "ssh",
             "properties": {
-              "description": "Allow RDP",
+              "description": "Allow SSH",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
@@ -322,9 +310,11 @@
       "type": "CustomScript",
       "typeHandlerVersion": "2.0",
         "autoUpgradeMinorVersion": "true",
-        "settings": {
-          "fileUris": [ "[concat(parameters('_artifactsLocation'), variables('scriptName'), '.sh')]" ],
+        "protectedSettings": {
           "commandToExecute": "[concat('/bin/bash -c \"/bin/bash ', variables('scriptName'), '.sh ' , variables('scriptParameters'), ' >> /var/log/azure/acsengine-kubernetes-dvm.log 2>&1\"')]"
+        },
+        "settings": {
+          "fileUris": [ "[concat(parameters('_artifactsLocation'), variables('scriptName'), '.sh')]" ]
         }
       }
     }

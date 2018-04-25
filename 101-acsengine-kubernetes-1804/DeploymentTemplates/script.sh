@@ -14,24 +14,20 @@ BUILD_ACS_ENGINE=${2}
 TENANT_ENDPOINT=${3}
 TENANT_ID=${4}
 TENANT_SUBSCRIPTION_ID=${5}
-TENANT_USERNAME=${6}
-TENANT_PASSWORD=${7}
-ADMIN_USERNAME=${8}
-MASTER_DNS_PREFIX=${9}
-AGENT_COUNT=${10}
-SPN_CLIENT_ID=${11}
-SPN_CLIENT_SECRET=${12}
-K8S_AZURE_CLOUDPROVIDER_VERSION=${13}
-REGION_NAME=${14}
-SSH_PUBLICKEY="${15} ${16} ${17}"
+ADMIN_USERNAME=${6}
+MASTER_DNS_PREFIX=${7}
+AGENT_COUNT=${8}
+SPN_CLIENT_ID=${9}
+SPN_CLIENT_SECRET=${10}
+K8S_AZURE_CLOUDPROVIDER_VERSION=${11}
+REGION_NAME=${12}
+SSH_PUBLICKEY="${13} ${14} ${15}"
 
 echo "RESOURCE_GROUP_NAME: $RESOURCE_GROUP_NAME"
 echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
 echo "TENANT_ENDPOINT: $TENANT_ENDPOINT"
 echo "TENANT_ID: $TENANT_ID"
 echo "TENANT_SUBSCRIPTION_ID: $TENANT_SUBSCRIPTION_ID"
-echo "TENANT_USERNAME: $TENANT_USERNAME"
-echo "TENANT_PASSWORD: $TENANT_PASSWORD"
 echo "ADMIN_USERNAME: $ADMIN_USERNAME"
 echo "MASTER_DNS_PREFIX: $MASTER_DNS_PREFIX"
 echo "AGENT_COUNT: $AGENT_COUNT"
@@ -44,37 +40,54 @@ echo "SSH_PUBLICKEY: $SSH_PUBLICKEY"
 echo 'Printing the system information'
 sudo uname -a
 
+retrycmd_if_failure() { retries=$1; wait=$2; shift && shift; for i in $(seq 1 $retries); do ${@}; [ $? -eq 0  ] && break || sleep $wait; done; echo Executed \"$@\" $i times; }
+
 echo "Update the system."
-sudo apt-get update -y
+retrycmd_if_failure 5 10 sudo apt-get update -y
 
 echo "Installing pax for string manipulation."
-sudo apt-get install pax -y
+retrycmd_if_failure 5 10 sudo apt-get install pax -y
 
 echo "Installing jq for JSON manipulation."
-sudo apt-get install jq -y
+retrycmd_if_failure 5 10 sudo apt-get install jq -y
 
 echo "Install AzureCLI."
-sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
-sudo apt-get install python3.5 -y
-sudo apt-get install python-pip -y
-pip install --upgrade pip
-sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
+retrycmd_if_failure 5 10 sudo apt-get update -y
+
+# Instructions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+AZ_REPO=$(lsb_release -cs)
+if [ $AZ_REPO ] ; then
+	echo "Could retrieve value of (lsb_release -cs) to be $AZ_REPO"
+else
+	AZ_REPO=xenial
+	echo "Missing value of (lsb_release -cs). Assigning default of $AZ_REPO"
+fi
+
+echo "Installing Azure CLI from $AZ_REPO"
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+sudo apt-get install apt-transport-https -y
+sudo apt-get update -y 
+retrycmd_if_failure 5 10 sudo apt-get install azure-cli -y
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
-PYTHON_CERTIFI_LOCATION=$(python -c "import certifi; print(certifi.where())")
-sudo cat /var/lib/waagent/Certificates.pem >> $PYTHON_CERTIFI_LOCATION
+sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
+export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
+
+# TODO: Remove once the bug in Azure CLI is fixed.
+export ADAL_PYTHON_SSL_NO_VERIFY=1 
+export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
 
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
-update-ca-certificates
+sudo update-ca-certificates
 
 echo 'Retrieve the AzureStack root CA certificate thumbprint'
 THUMBPRINT=$(openssl x509 -in /var/lib/waagent/Certificates.pem -fingerprint -noout | cut -d'=' -f 2 | tr -d :)
 echo 'Thumbprint for AzureStack root CA certificate:' $THUMBPRINT
 
-# TODO: change to get from appropriate tag/release from master
-echo "Clone the ACS-Engine repo"
+echo "Cloning the ACS-Engine repo/branch: msazurestackworkloads, acs-engine-v0140"
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
 cd acs-engine
 
@@ -107,8 +120,13 @@ else
     sudo mv acs-engine bin/
 fi
 
-echo "Printing help for acs-engine to ensure that binary is available."
-sudo ./bin/acs-engine --help
+echo "Checkign if acs-engine binary is available."
+if [ -f "./bin/acs-engine" ] ; then
+	echo "Found acs-engine.exe"
+else
+	echo "Missing acs-engine.exe. Exiting!"
+	exit 1
+fi
 
 PATTERN="https://management.$REGION_NAME."
 if `echo $TENANT_ENDPOINT | grep $PATTERN 1>/dev/null 2>&1`
@@ -123,8 +141,12 @@ EXTERNAL_FQDN=${TENANT_ENDPOINT##*$PATTERN}
 SUFFIXES_STORAGE_ENDPOINT=$REGION_NAME.$EXTERNAL_FQDN
 SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
-
 ENVIRONMENT_NAME=AzureStackCloud
+
+# TODO: Remove once the bug in Azure CLI is fixed.
+export ADAL_PYTHON_SSL_NO_VERIFY=1 
+export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
+
 echo 'Register to the cloud.'
 az cloud register \
   --name $ENVIRONMENT_NAME \
@@ -186,8 +208,9 @@ echo "Done building the API model based on the stamp information."
 
 echo 'Login to the cloud.'
 az login \
-  --username $TENANT_USERNAME \
-  --password $TENANT_PASSWORD \
+  --service-principal \
+  --username $SPN_CLIENT_ID \
+  --password $SPN_CLIENT_SECRET \
   --tenant $TENANT_ID
 
 echo "Setting subscription to $TENANT_SUBSCRIPTION_ID"
@@ -198,9 +221,6 @@ echo "Current directory is: $MYDIR"
 
 echo "Generate and Deploy the template using the API model in resource group $MASTER_DNS_PREFIX."
 sudo ./bin/acs-engine deploy --resource-group $RESOURCE_GROUP_NAME --azure-env $ENVIRONMENT_NAME --location $REGION_NAME --subscription-id $TENANT_SUBSCRIPTION_ID --client-id $SPN_CLIENT_ID --client-secret $SPN_CLIENT_SECRET --auth-method client_secret --api-model azurestack.json
-
-echo "Accessing the generated templates."
-sudo chmod 777 -R _output/
 
 echo "Templates output directory is $PWD/_output/$MASTER_DNS_PREFIX"
 
