@@ -28,9 +28,6 @@
       },
       "kubernetesAzureCloudProviderVersion": {
         "value": "1.7"
-      },
-      "buildAcsEngine": {
-        "value": "false"
       }
   }
 }

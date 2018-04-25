@@ -10,21 +10,19 @@ sleep 20
 
 # Script parameters
 RESOURCE_GROUP_NAME=${1}
-BUILD_ACS_ENGINE=${2}
-TENANT_ENDPOINT=${3}
-TENANT_ID=${4}
-TENANT_SUBSCRIPTION_ID=${5}
-ADMIN_USERNAME=${6}
-MASTER_DNS_PREFIX=${7}
-AGENT_COUNT=${8}
-SPN_CLIENT_ID=${9}
-SPN_CLIENT_SECRET=${10}
-K8S_AZURE_CLOUDPROVIDER_VERSION=${11}
-REGION_NAME=${12}
-SSH_PUBLICKEY="${13} ${14} ${15}"
+TENANT_ENDPOINT=${2}
+TENANT_ID=${3}
+TENANT_SUBSCRIPTION_ID=${4}
+ADMIN_USERNAME=${5}
+MASTER_DNS_PREFIX=${6}
+AGENT_COUNT=${7}
+SPN_CLIENT_ID=${8}
+SPN_CLIENT_SECRET=${9}
+K8S_AZURE_CLOUDPROVIDER_VERSION=${10}
+REGION_NAME=${11}
+SSH_PUBLICKEY="${12} ${13} ${14}"
 
 echo "RESOURCE_GROUP_NAME: $RESOURCE_GROUP_NAME"
-echo "BUILD_ACS_ENGINE: $BUILD_ACS_ENGINE"
 echo "TENANT_ENDPOINT: $TENANT_ENDPOINT"
 echo "TENANT_ID: $TENANT_ID"
 echo "TENANT_SUBSCRIPTION_ID: $TENANT_SUBSCRIPTION_ID"
@@ -91,34 +89,11 @@ echo "Cloning the ACS-Engine repo/branch: msazurestackworkloads, acs-engine-v014
 git clone https://github.com/msazurestackworkloads/acs-engine -b acs-engine-v0140
 cd acs-engine
 
-if [ $BUILD_ACS_ENGINE == "True" ]
-then
-    echo "We are going to build ACS-Engine."
-
-	echo "Install docker"
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    sudo apt-get update -y
-    sudo apt-get install docker-ce -y
-
-    echo "Install Make."
-    sudo apt-get install make -y
-
-    echo "Build developer environment."
-    sudo make devenv
-
-    echo "Build the repository."
-    sudo make all
-
-	exit
-else
-    echo "We are going to use an existing ACS-Engine binary."
-
-    echo "Open the zip file from the repo location."
-    sudo mkdir bin
-    sudo tar -zxvf examples/azurestack/acs-engine.tgz
-    sudo mv acs-engine bin/
-fi
+echo "We are going to use an existing ACS-Engine binary."
+echo "Open the zip file from the repo location."
+sudo mkdir bin
+sudo tar -zxvf examples/azurestack/acs-engine.tgz
+sudo mv acs-engine bin/
 
 echo "Checkign if acs-engine binary is available."
 if [ -f "./bin/acs-engine" ] ; then

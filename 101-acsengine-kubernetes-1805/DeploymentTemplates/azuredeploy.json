@@ -97,13 +97,6 @@
         "description": "This is the version for the kubernetes Azure cloud provider. We would use a custom kubernetes build specifically for AzureStack for each version."
       }
     },
-    "buildAcsEngine": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "If true we will build latest acs-engine and then use the binary from build. If false we will use a pre-build acs-engine binary from the repo."
-      }
-    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -139,7 +132,7 @@
     "sshKeyPath": "[concat('/home/',parameters('linuxAdminUsername'),'/.ssh/authorized_keys')]",
     "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
+    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
   },
   "resources": [
     {
