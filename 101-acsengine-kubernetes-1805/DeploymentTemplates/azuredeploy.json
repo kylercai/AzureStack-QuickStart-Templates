@@ -27,18 +27,6 @@
         "description": "Tenant Id for the tenant. It's usually in the upper right side of the tenant portal. Here is another link to retrieve it: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#get-tenant-id"
       }
     },
-    "tenantUsername": {
-      "type": "securestring",
-      "metadata": {
-        "description": "This is username for the tenant. We need to connect to ARM tenant endpoint to create the Kubernetes cluster e.g. tenantadmin1@msazurestack.onmicrosoft.com "
-      }
-    },
-    "tenantPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Tenant Password. We need to connect to ARM tenant endpoint to create the Kubernetes cluster. This is password for the tenant."
-      }
-    },
     "masterProfileDnsPrefix": {
       "type": "string",
       "metadata": {
@@ -151,7 +139,7 @@
     "sshKeyPath": "[concat('/home/',parameters('linuxAdminUsername'),'/.ssh/authorized_keys')]",
     "tenantSubscriptionId": "[subscription().subscriptionId]",
     "scriptName": "script",
-    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('tenantUsername'), ' ', parameters('tenantPassword'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
+    "scriptParameters": "[concat(variables('resourceGroupName'), ' ', parameters('buildAcsEngine'), ' ', parameters('tenantArmEndpoint'), ' ', parameters('tenantId'), ' ', variables('tenantSubscriptionId'), ' ', parameters('linuxAdminUsername'), ' ', parameters('masterProfileDnsPrefix'), ' ', parameters('agentPoolProfileCount'), ' ', parameters('servicePrincipalClientId'), ' ', parameters('servicePrincipalClientSecret'), ' ', parameters('kubernetesAzureCloudProviderVersion'), ' ', variables('location'), ' ', parameters('sshPublicKey'))]"
   },
   "resources": [
     {
