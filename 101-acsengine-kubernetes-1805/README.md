@@ -42,11 +42,12 @@ This template deploys a Linux VM, clones and AzureStack forked ACS-Engine repo/b
 
 	Add-AzsGalleryItem -GalleryItemUri "https://azurestacktemplate.blob.core.windows.net/kubernetes-1804/Microsoft.AzureStackKubernetesCluster.0.1.0.azpkg" 
 
-	Please wait atleast 5 mins for the item to show up in marketplace in Tenant portal. It will show up with the name "Kubernetes Cluster"
+	Please wait atleast 5 mins for the item to show up in marketplace in Tenant portal. It will show up with the name "Kubernetes Cluster".
+	
+	If you have already added the marketplace item once don't forget to remove it first to update to new one:
+	Remove-AzsGalleryItem -Name "Microsoft.AzureStackKubernetesCluster.0.1.0"
 
 2) Ensure that you have a valid subscription in your AzureStack tenant portal (with enough public IP quota to try few applications).
-
-   $tenantSubscriptionId = "4a4be501-4cb1-431b-a55d-b700ccfc3edd"
 
 3) Ensuring that the service principal has access to the subcription in your AzureStack tenant portal.
    https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal#assign-application-to-role
