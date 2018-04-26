@@ -73,10 +73,6 @@ echo 'Import the root CA certificate to python store.'
 sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
 export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
 
-# TODO: Remove once the bug in Azure CLI is fixed.
-export ADAL_PYTHON_SSL_NO_VERIFY=1 
-export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
-
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
 sudo update-ca-certificates
@@ -118,12 +114,8 @@ SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 ENVIRONMENT_NAME=AzureStackCloud
 
-# TODO: Remove once the bug in Azure CLI is fixed.
-export ADAL_PYTHON_SSL_NO_VERIFY=1 
-export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
-
 echo 'Register to the cloud.'
-az cloud register \
+sudo az cloud register \
   --name $ENVIRONMENT_NAME \
   --endpoint-resource-manager $TENANT_ENDPOINT \
   --suffix-storage-endpoint $SUFFIXES_STORAGE_ENDPOINT \
@@ -132,7 +124,7 @@ az cloud register \
   --profile 2017-03-09-profile
 
 echo "Set the current cloud to be $ENVIRONMENT_NAME"
-az cloud set --name $ENVIRONMENT_NAME
+sudo az cloud set --name $ENVIRONMENT_NAME
 
 ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
 ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
@@ -182,14 +174,14 @@ sudo mv azurestack_temp.json azurestack.json
 echo "Done building the API model based on the stamp information."
 
 echo 'Login to the cloud.'
-az login \
+sudo az login \
   --service-principal \
   --username $SPN_CLIENT_ID \
   --password $SPN_CLIENT_SECRET \
   --tenant $TENANT_ID
 
 echo "Setting subscription to $TENANT_SUBSCRIPTION_ID"
-az account set --subscription $TENANT_SUBSCRIPTION_ID
+sudo az account set --subscription $TENANT_SUBSCRIPTION_ID
 
 MYDIR=$PWD
 echo "Current directory is: $MYDIR"
