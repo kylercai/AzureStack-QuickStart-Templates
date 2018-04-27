@@ -73,6 +73,10 @@ echo 'Import the root CA certificate to python store.'
 sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
 export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
 
+# TODO: Remove once the bug in Azure CLI is fixed.
+export ADAL_PYTHON_SSL_NO_VERIFY=1 
+export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
+
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
 sudo update-ca-certificates
@@ -113,6 +117,10 @@ SUFFIXES_STORAGE_ENDPOINT=$REGION_NAME.$EXTERNAL_FQDN
 SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 ENVIRONMENT_NAME=AzureStackCloud
+
+# TODO: Remove once the bug in Azure CLI is fixed.
+export ADAL_PYTHON_SSL_NO_VERIFY=1 
+export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
 
 echo 'Register to the cloud.'
 sudo az cloud register \
