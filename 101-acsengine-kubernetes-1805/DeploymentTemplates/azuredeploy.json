@@ -63,7 +63,8 @@
       "defaultValue": "1.7",
       "allowedValues": [
         "1.7",
-        "1.8"
+        "1.8",
+        "1.9"
       ],
       "metadata": {
         "description": "This is the version for the kubernetes Azure cloud provider. We would use a custom kubernetes build specifically for AzureStack for each version."
