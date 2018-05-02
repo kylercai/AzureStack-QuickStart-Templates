@@ -52,24 +52,22 @@ retrycmd_if_failure 5 10 sudo apt-get install jq -y
 echo "Install AzureCLI."
 retrycmd_if_failure 5 10 sudo apt-get update -y
 
-echo "Update the system."
-sudo apt-get update -y
+# Instructions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+AZ_REPO=$(lsb_release -cs)
+if [ $AZ_REPO ] ; then
+	echo "Could retrieve value of (lsb_release -cs) to be $AZ_REPO"
+else
+	AZ_REPO=xenial
+	echo "Missing value of (lsb_release -cs). Assigning default of $AZ_REPO"
+fi
 
-echo "Install AzureCLI."
-echo "Update prerequiste for AzureCLI."
-sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential -y
-
-echo "Install Python 3.5"
-sudo apt-get install python3.5 -y
-
-echo "Install Python PIP."
-sudo apt-get install python-pip -y
-
-echo "Upgrading Python PIP."
-pip install --upgrade pip
-
-echo "Install AzureCLI package."
-sudo pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/bundled/azure-cli_bundle_0.2.10-1.tar.gz
+echo "Installing Azure CLI from $AZ_REPO"
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+sudo apt-get install apt-transport-https -y
+sudo apt-get update -y 
+retrycmd_if_failure 5 10 sudo apt-get install azure-cli -y
+echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
 sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
