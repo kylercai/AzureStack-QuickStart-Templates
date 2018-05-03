@@ -123,7 +123,7 @@ export ADAL_PYTHON_SSL_NO_VERIFY=1
 export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
 
 echo 'Register to the cloud.'
-sudo az cloud register \
+az cloud register \
   --name $ENVIRONMENT_NAME \
   --endpoint-resource-manager $TENANT_ENDPOINT \
   --suffix-storage-endpoint $SUFFIXES_STORAGE_ENDPOINT \
@@ -132,7 +132,7 @@ sudo az cloud register \
   --profile 2017-03-09-profile
 
 echo "Set the current cloud to be $ENVIRONMENT_NAME"
-sudo az cloud set --name $ENVIRONMENT_NAME
+az cloud set --name $ENVIRONMENT_NAME
 
 ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
 ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
@@ -182,14 +182,14 @@ sudo mv azurestack_temp.json azurestack.json
 echo "Done building the API model based on the stamp information."
 
 echo 'Login to the cloud.'
-sudo az login \
+az login \
   --service-principal \
   --username $SPN_CLIENT_ID \
   --password $SPN_CLIENT_SECRET \
   --tenant $TENANT_ID
 
 echo "Setting subscription to $TENANT_SUBSCRIPTION_ID"
-sudo az account set --subscription $TENANT_SUBSCRIPTION_ID
+az account set --subscription $TENANT_SUBSCRIPTION_ID
 
 MYDIR=$PWD
 echo "Current directory is: $MYDIR"
