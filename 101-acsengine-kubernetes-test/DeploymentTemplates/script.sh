@@ -53,6 +53,7 @@ echo "Install AzureCLI."
 retrycmd_if_failure 5 10 sudo apt-get update -y
 
 echo "Installing Azure CLI"
+retrycmd_if_failure 5 10 sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential
 INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-test/DeploymentTemplates/install.py"
 wget $INSTALL_SCRIPT_URL
 if ! command -v python >/dev/null 2>&1
@@ -63,15 +64,11 @@ then
 fi
 chmod 777 install.py
 echo "Running install script to install Azure CLI."
-python install.py
+retrycmd_if_failure 5 10 python install.py
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
 sudo cat /var/lib/waagent/Certificates.pem >> ~/lib/azure-cli/lib/python2.7/site-packages/certifi/cacert.pem
-
-# TODO: Remove once the bug in Azure CLI is fixed.
-export ADAL_PYTHON_SSL_NO_VERIFY=1 
-export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
 
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
@@ -113,10 +110,6 @@ SUFFIXES_STORAGE_ENDPOINT=$REGION_NAME.$EXTERNAL_FQDN
 SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 ENVIRONMENT_NAME=AzureStackCloud
-
-# TODO: Remove once the bug in Azure CLI is fixed.
-export ADAL_PYTHON_SSL_NO_VERIFY=1 
-export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
 
 echo 'Register to the cloud.'
 az cloud register \
