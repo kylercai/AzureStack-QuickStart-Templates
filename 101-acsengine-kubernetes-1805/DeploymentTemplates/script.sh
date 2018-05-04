@@ -49,33 +49,26 @@ retrycmd_if_failure 5 10 sudo apt-get install pax -y
 echo "Installing jq for JSON manipulation."
 retrycmd_if_failure 5 10 sudo apt-get install jq -y
 
-echo "Install AzureCLI."
+echo "Update the system."
 retrycmd_if_failure 5 10 sudo apt-get update -y
 
-# Instructions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
-AZ_REPO=$(lsb_release -cs)
-if [ $AZ_REPO ] ; then
-	echo "Could retrieve value of (lsb_release -cs) to be $AZ_REPO"
-else
-	AZ_REPO=xenial
-	echo "Missing value of (lsb_release -cs). Assigning default of $AZ_REPO"
+echo "Installing Azure CLI"
+INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-1805/DeploymentTemplates/install.py"
+wget $INSTALL_SCRIPT_URL
+if ! command -v python >/dev/null 2>&1
+then
+  echo "ERROR: Python not found. 'command -v python' returned failure."
+  echo "If python is available on the system, add it to PATH. For example 'sudo ln -s /usr/bin/python3 /usr/bin/python'"
+  exit 1
 fi
-
-echo "Installing Azure CLI from $AZ_REPO"
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-sudo apt-get install apt-transport-https -y
-sudo apt-get update -y 
-retrycmd_if_failure 5 10 sudo apt-get install azure-cli -y
+chmod 777 install.py
+echo "Running install script to install Azure CLI."
+retrycmd_if_failure 5 10 python install.py
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
-sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
-export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
-
-# TODO: Remove once the bug in Azure CLI is fixed.
-export ADAL_PYTHON_SSL_NO_VERIFY=1 
-export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
+sudo cat /var/lib/waagent/Certificates.pem >> /root/lib/azure-cli/lib/python2.7/site-packages/certifi/cacert.pem
+sudo cat /var/lib/waagent/Certificates.pem >> ~/lib/azure-cli/lib/python2.7/site-packages/certifi/cacert.pem
 
 echo 'Import the root CA to store.'
 sudo cp /var/lib/waagent/Certificates.pem /usr/local/share/ca-certificates/azsCertificate.crt
@@ -118,12 +111,9 @@ SUFFIXES_KEYVAULT_DNS=.vault.$REGION_NAME.$EXTERNAL_FQDN
 FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 ENVIRONMENT_NAME=AzureStackCloud
 
-# TODO: Remove once the bug in Azure CLI is fixed.
-export ADAL_PYTHON_SSL_NO_VERIFY=1 
-export AZURE_CLI_DISABLE_CONNECTION_VERIFICATION=1
-
 echo 'Register to the cloud.'
-az cloud register \
+
+/root/bin/az cloud register \
   --name $ENVIRONMENT_NAME \
   --endpoint-resource-manager $TENANT_ENDPOINT \
   --suffix-storage-endpoint $SUFFIXES_STORAGE_ENDPOINT \
@@ -132,10 +122,10 @@ az cloud register \
   --profile 2017-03-09-profile
 
 echo "Set the current cloud to be $ENVIRONMENT_NAME"
-az cloud set --name $ENVIRONMENT_NAME
+/root/bin/az cloud set --name $ENVIRONMENT_NAME
 
-ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
-ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
+ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(/root/bin/az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
+ENDPOINT_GALLERY=$(/root/bin/az cloud show | jq '.endpoints.gallery' | tr -d \")
 
 echo 'Overriding the default file with the correct values in the API model or the cluster definition.'
 
@@ -182,14 +172,14 @@ sudo mv azurestack_temp.json azurestack.json
 echo "Done building the API model based on the stamp information."
 
 echo 'Login to the cloud.'
-az login \
+/root/bin/az login \
   --service-principal \
   --username $SPN_CLIENT_ID \
   --password $SPN_CLIENT_SECRET \
   --tenant $TENANT_ID
 
 echo "Setting subscription to $TENANT_SUBSCRIPTION_ID"
-az account set --subscription $TENANT_SUBSCRIPTION_ID
+/root/bin/az account set --subscription $TENANT_SUBSCRIPTION_ID
 
 MYDIR=$PWD
 echo "Current directory is: $MYDIR"
