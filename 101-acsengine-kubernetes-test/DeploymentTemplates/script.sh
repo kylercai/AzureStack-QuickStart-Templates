@@ -52,26 +52,22 @@ retrycmd_if_failure 5 10 sudo apt-get install jq -y
 echo "Install AzureCLI."
 retrycmd_if_failure 5 10 sudo apt-get update -y
 
-# Instructions from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
-AZ_REPO=$(lsb_release -cs)
-if [ $AZ_REPO ] ; then
-	echo "Could retrieve value of (lsb_release -cs) to be $AZ_REPO"
-else
-	AZ_REPO=xenial
-	echo "Missing value of (lsb_release -cs). Assigning default of $AZ_REPO"
+echo "Installing Azure CLI"
+INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-test/DeploymentTemplates/install.py"
+wget $INSTALL_SCRIPT_URL
+if ! command -v python >/dev/null 2>&1
+then
+  echo "ERROR: Python not found. 'command -v python' returned failure."
+  echo "If python is available on the system, add it to PATH. For example 'sudo ln -s /usr/bin/python3 /usr/bin/python'"
+  exit 1
 fi
-
-echo "Installing Azure CLI from $AZ_REPO"
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-sudo apt-get install apt-transport-https -y
-sudo apt-get update -y 
-retrycmd_if_failure 5 10 sudo apt-get install azure-cli -y
+chmod 777 install.py
+echo "Running install script to install Azure CLI."
+python install.py
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
-sudo cp /var/lib/waagent/Certificates.pem ~/azsCertificate.crt
-export REQUESTS_CA_BUNDLE=~/azsCertificate.crt
+sudo cat /var/lib/waagent/Certificates.pem >> ~/lib/azure-cli/lib/python2.7/site-packages/certifi/cacert.pem
 
 # TODO: Remove once the bug in Azure CLI is fixed.
 export ADAL_PYTHON_SSL_NO_VERIFY=1 

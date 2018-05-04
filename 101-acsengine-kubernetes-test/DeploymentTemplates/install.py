@@ -305,7 +305,7 @@ def _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, dep_list):
         err_msg += "\nInstalling native dependencies...\n"
         print_status(err_msg)
         bashCommand = '"{}"'.format(' '.join(install_cmd_args + dep_list)) # "sudo apt-get update && sudo apt-get install -y {}".format()
-        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+		process = subprocess.check_output(bashCommand.split(), stderr=subprocess.STDOUT)
         output, error = process.communicate()
         if output:
             print_status(output)
@@ -331,7 +331,7 @@ def verify_native_dependencies():
     dep_list = None
     if any(x in distname for x in ['ubuntu', 'debian']):
         verify_cmd_args = ['dpkg', '-s']
-        install_cmd_args = ['sudo', 'apt-get', 'update', '&&', 'sudo', 'apt-get', 'install', '-y']
+        install_cmd_args = ['apt-get', 'update', '-y', '&&', 'apt-get', 'install', '-y']
         python_dep = 'python3-dev' if is_python3 else 'python-dev'
         if distname == 'ubuntu' and version in ['12.04', '14.04'] or distname == 'debian' and version.startswith('7'):
             dep_list = ['libssl-dev', 'libffi-dev', python_dep]
