@@ -305,7 +305,7 @@ def _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, dep_list):
         err_msg += "\nInstalling native dependencies...\n"
         print_status(err_msg)
         bashCommand = '"{}"'.format(' '.join(install_cmd_args + dep_list)) # "sudo apt-get update && sudo apt-get install -y {}".format()
-		process = subprocess.check_output(bashCommand.split(), stderr=subprocess.STDOUT)
+        process = subprocess.check_output(bashCommand.split(), stderr=subprocess.STDOUT)
         output, error = process.communicate()
         if output:
             print_status(output)
