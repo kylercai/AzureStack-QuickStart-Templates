@@ -112,7 +112,8 @@ FQDN_ENDPOINT_SUFFIX=cloudapp.$EXTERNAL_FQDN
 ENVIRONMENT_NAME=AzureStackCloud
 
 echo 'Register to the cloud.'
-az cloud register \
+
+/root/bin/az cloud register \
   --name $ENVIRONMENT_NAME \
   --endpoint-resource-manager $TENANT_ENDPOINT \
   --suffix-storage-endpoint $SUFFIXES_STORAGE_ENDPOINT \
@@ -121,10 +122,10 @@ az cloud register \
   --profile 2017-03-09-profile
 
 echo "Set the current cloud to be $ENVIRONMENT_NAME"
-az cloud set --name $ENVIRONMENT_NAME
+/root/bin/az cloud set --name $ENVIRONMENT_NAME
 
-ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
-ENDPOINT_GALLERY=$(az cloud show | jq '.endpoints.gallery' | tr -d \")
+ENDPOINT_ACTIVE_DIRECTORY_RESOURCEID=$(/root/bin/az cloud show | jq '.endpoints.activeDirectoryResourceId' | tr -d \")
+ENDPOINT_GALLERY=$(/root/bin/az cloud show | jq '.endpoints.gallery' | tr -d \")
 
 echo 'Overriding the default file with the correct values in the API model or the cluster definition.'
 
@@ -171,14 +172,14 @@ sudo mv azurestack_temp.json azurestack.json
 echo "Done building the API model based on the stamp information."
 
 echo 'Login to the cloud.'
-az login \
+/root/bin/az login \
   --service-principal \
   --username $SPN_CLIENT_ID \
   --password $SPN_CLIENT_SECRET \
   --tenant $TENANT_ID
 
 echo "Setting subscription to $TENANT_SUBSCRIPTION_ID"
-az account set --subscription $TENANT_SUBSCRIPTION_ID
+/root/bin/az account set --subscription $TENANT_SUBSCRIPTION_ID
 
 MYDIR=$PWD
 echo "Current directory is: $MYDIR"
