@@ -331,7 +331,7 @@ def verify_native_dependencies():
     dep_list = None
     if any(x in distname for x in ['ubuntu', 'debian']):
         verify_cmd_args = ['dpkg', '-s']
-        install_cmd_args = ['apt-get', 'update', '-y', '&&', 'apt-get', 'install', '-y']
+        install_cmd_args = ['sudo', 'apt-get', 'update', '-y', '&&', 'sudo', 'apt-get', 'install', '-y']
         python_dep = 'python3-dev' if is_python3 else 'python-dev'
         if distname == 'ubuntu' and version in ['12.04', '14.04'] or distname == 'debian' and version.startswith('7'):
             dep_list = ['libssl-dev', 'libffi-dev', python_dep]
