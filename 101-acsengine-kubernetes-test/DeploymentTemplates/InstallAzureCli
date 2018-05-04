@@ -8,7 +8,7 @@
 #
 # Bash script to install the Azure CLI
 #
-INSTALL_SCRIPT_URL="INSTALL_SCRIPT_URL="https://github.com/radhikagupta5/AzureStack-QuickStart-Templates/tree/radhikgu-acs/101-acsengine-kubernetes-test/DeploymentTemplates/install.py"
+INSTALL_SCRIPT_URL="https://github.com/radhikagupta5/AzureStack-QuickStart-Templates/tree/radhikgu-acs/101-acsengine-kubernetes-test/DeploymentTemplates/install.py"
 INSTALL_SCRIPT_SHA256=7419f49b066015d863f398198c4ac5ad026f5aa3705e898b552e4e03fc352552
 _TTY=/dev/tty
 
