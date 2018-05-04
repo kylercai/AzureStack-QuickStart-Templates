@@ -49,11 +49,10 @@ retrycmd_if_failure 5 10 sudo apt-get install pax -y
 echo "Installing jq for JSON manipulation."
 retrycmd_if_failure 5 10 sudo apt-get install jq -y
 
-echo "Install AzureCLI."
+echo "Update the system."
 retrycmd_if_failure 5 10 sudo apt-get update -y
 
 echo "Installing Azure CLI"
-retrycmd_if_failure 5 10 sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential
 INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/radhikagupta5/AzureStack-QuickStart-Templates/radhikgu-acs/101-acsengine-kubernetes-test/DeploymentTemplates/install.py"
 wget $INSTALL_SCRIPT_URL
 if ! command -v python >/dev/null 2>&1
@@ -68,6 +67,7 @@ retrycmd_if_failure 5 10 python install.py
 echo "Completed installing AzureCLI."
 
 echo 'Import the root CA certificate to python store.'
+sudo cat /var/lib/waagent/Certificates.pem >> /root/lib/azure-cli/lib/python2.7/site-packages/certifi/cacert.pem
 sudo cat /var/lib/waagent/Certificates.pem >> ~/lib/azure-cli/lib/python2.7/site-packages/certifi/cacert.pem
 
 echo 'Import the root CA to store.'

@@ -24,7 +24,6 @@ import tempfile
 import shutil
 import subprocess
 import hashlib
-import subprocess
 
 try:
     # Attempt to load python 3 module
@@ -294,7 +293,7 @@ def verify_python_version():
                               "Create an Anaconda virtual environment and install with 'pip'")
     print_status('Python version {}.{}.{} okay.'.format(v.major, v.minor, v.micro))
 
-def _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, dep_list):
+def _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, update_cmd_args, dep_list):
     try:
         print_status("Executing: '{} {}'".format(' '.join(verify_cmd_args), ' '.join(dep_list)))
         subprocess.check_output(verify_cmd_args + dep_list, stderr=subprocess.STDOUT)
@@ -304,14 +303,8 @@ def _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, dep_list):
         err_msg += '"{}"'.format(' '.join(install_cmd_args + dep_list))
         err_msg += "\nInstalling native dependencies...\n"
         print_status(err_msg)
-        bashCommand = '"{}"'.format(' '.join(install_cmd_args + dep_list)) # "sudo apt-get update && sudo apt-get install -y {}".format()
-        process = subprocess.check_output(bashCommand.split(), stderr=subprocess.STDOUT)
-        output, error = process.communicate()
-        if output:
-            print_status(output)
-        elif error:
-            print_status(error)
-            raise CLIInstallError('An error occurred while trying to install dependencies. Please install the native dependencies and try again.')
+        subprocess.check_output(update_cmd_args, stderr=subprocess.STDOUT)
+        subprocess.check_output(install_cmd_args + dep_list, stderr=subprocess.STDOUT)
         
         # ans_yes = prompt_y_n('Missing native dependencies. Attempt to continue anyway?', 'n')
         #if not ans_yes:
@@ -331,7 +324,8 @@ def verify_native_dependencies():
     dep_list = None
     if any(x in distname for x in ['ubuntu', 'debian']):
         verify_cmd_args = ['dpkg', '-s']
-        install_cmd_args = ['sudo', 'apt-get', 'update', '-y', '&&', 'sudo', 'apt-get', 'install', '-y']
+        update_cmd_args = ['sudo', 'apt-get', 'update', '-y']
+        install_cmd_args = ['sudo', 'apt-get', 'install', '-y']
         python_dep = 'python3-dev' if is_python3 else 'python-dev'
         if distname == 'ubuntu' and version in ['12.04', '14.04'] or distname == 'debian' and version.startswith('7'):
             dep_list = ['libssl-dev', 'libffi-dev', python_dep]
@@ -349,7 +343,7 @@ def verify_native_dependencies():
         python_dep = 'python3-devel' if is_python3 else 'python-devel'
         dep_list = ['gcc', 'libffi-devel', python_dep, 'openssl-devel']
     if verify_cmd_args and install_cmd_args and dep_list:
-        _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, dep_list)
+        _native_dependencies_for_dist(verify_cmd_args, install_cmd_args, update_cmd_args, dep_list)
     else:
         print_status("Unable to verify native dependencies. dist={}, version={}. Continuing...".format(distname, version))
 
